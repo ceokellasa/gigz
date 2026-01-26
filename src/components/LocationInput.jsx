@@ -3,6 +3,7 @@ import { MapPin, Loader2, AlertCircle } from 'lucide-react'
 import clsx from 'clsx'
 
 // Load Google Maps Script Helper
+// Updated: 2026-01-26
 const loadGoogleMapsScript = (apiKey) => {
     return new Promise((resolve, reject) => {
         if (window.google && window.google.maps && window.google.maps.places) {
