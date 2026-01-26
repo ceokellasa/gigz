@@ -1,16 +1,41 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { MapPin, Globe } from 'lucide-react'
+import { MapPin, Globe, Heart } from 'lucide-react'
 import { CategoryIcon } from './CategoryIcon'
+import { useAuth } from '../context/AuthContext'
+import clsx from 'clsx'
+import { useToast } from './Toast'
 
 export default function GigList({ limit = 6 }) {
+    const { user } = useAuth()
+    const navigate = useNavigate()
+    const toast = useToast()
     const [gigs, setGigs] = useState([])
+    const [savedGigIds, setSavedGigIds] = useState(new Set())
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         fetchGigs()
-    }, [limit])
+        if (user) {
+            fetchSavedGigs()
+        }
+    }, [limit, user])
+
+    const fetchSavedGigs = async () => {
+        try {
+            const { data } = await supabase
+                .from('saved_gigs')
+                .select('gig_id')
+                .eq('user_id', user.id)
+
+            if (data) {
+                setSavedGigIds(new Set(data.map(item => item.gig_id)))
+            }
+        } catch (error) {
+            console.error('Error fetching saved gigs:', error)
+        }
+    }
 
     const fetchGigs = async () => {
         try {
@@ -30,6 +55,39 @@ export default function GigList({ limit = 6 }) {
         }
     }
 
+    const toggleLike = async (e, gigId) => {
+        e.preventDefault() // Prevent navigation to details
+        if (!user) {
+            toast.warning('Please sign in to save gigs')
+            navigate('/login')
+            return
+        }
+
+        const isSaved = savedGigIds.has(gigId)
+
+        // Optimistic update
+        const newSavedIds = new Set(savedGigIds)
+        if (isSaved) {
+            newSavedIds.delete(gigId)
+        } else {
+            newSavedIds.add(gigId)
+        }
+        setSavedGigIds(newSavedIds)
+
+        try {
+            if (isSaved) {
+                await supabase.from('saved_gigs').delete().eq('user_id', user.id).eq('gig_id', gigId)
+            } else {
+                await supabase.from('saved_gigs').insert({ user_id: user.id, gig_id: gigId })
+            }
+        } catch (error) {
+            console.error('Error toggling save:', error)
+            // Revert on error
+            setSavedGigIds(savedGigIds)
+            toast.error('Failed to update. Please try again.')
+        }
+    }
+
     if (loading) {
         return (
             <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
@@ -43,7 +101,15 @@ export default function GigList({ limit = 6 }) {
     return (
         <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
             {gigs.map((gig) => (
-                <div key={gig.id} className="glass-card flex flex-col h-full group">
+                <div key={gig.id} className="glass-card flex flex-col h-full group relative">
+                    {/* Like Button */}
+                    <button
+                        onClick={(e) => toggleLike(e, gig.id)}
+                        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:bg-white transition-all shadow-sm"
+                    >
+                        <Heart className={clsx("h-5 w-5", savedGigIds.has(gig.id) && "fill-red-500 text-red-500")} />
+                    </button>
+
                     <div className="h-48 w-full overflow-hidden rounded-t-xl relative bg-slate-100 flex items-center justify-center">
                         {gig.image_url ? (
                             <>
@@ -92,7 +158,10 @@ export default function GigList({ limit = 6 }) {
                                 </span>
                             </div>
                             <div className="text-right">
-                                <p className="text-lg font-bold text-slate-900">₹{gig.budget}</p>
+                                <p className="text-lg font-bold text-slate-900">
+                                    {gig.budget === 'Contact for Price' ? '' : '₹'}
+                                    {gig.budget}
+                                </p>
                                 <p className="text-xs text-slate-500">Fixed Price</p>
                             </div>
                         </div>

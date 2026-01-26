@@ -193,7 +193,10 @@ export default function GigDetails() {
                         <div className="flex flex-col gap-4 min-w-[200px]">
                             <div className="bg-indigo-50 rounded-xl p-4 text-center">
                                 <p className="text-sm text-indigo-600 font-medium mb-1">Budget</p>
-                                <p className="text-2xl font-bold text-indigo-700">₹{gig.budget}</p>
+                                <p className="text-2xl font-bold text-indigo-700">
+                                    {gig.budget === 'Contact for Price' ? '' : '₹'}
+                                    {gig.budget}
+                                </p>
                             </div>
                             <div className="bg-slate-50 rounded-xl p-4 text-center">
                                 <p className="text-sm text-slate-500 font-medium mb-1">Deadline</p>

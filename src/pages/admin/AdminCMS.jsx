@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Save, RefreshCw, AlertTriangle, Layout, Type, Image, Link as LinkIcon, Palette, CreditCard } from 'lucide-react'
+import { Save, RefreshCw, AlertTriangle, Layout, Type, Image, Link as LinkIcon, Palette, CreditCard, Settings } from 'lucide-react'
 import { useToast } from '../../components/Toast'
 import { useSettings } from '../../context/SettingsContext'
 
@@ -21,6 +21,7 @@ export default function AdminCMS() {
         { id: 'hero', label: 'Home Hero', icon: Image },
         { id: 'appearance', label: 'Appearance', icon: Palette },
         { id: 'content', label: 'Content', icon: Type },
+        { id: 'logic', label: 'Logic & Toggles', icon: Settings },
         { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
     ]
 
@@ -40,9 +41,18 @@ export default function AdminCMS() {
         appearance: [
             { key: 'primary_color', label: 'Primary Color', type: 'color' },
             { key: 'site_logo_url', label: 'Logo URL', type: 'text' },
+            { key: 'social_facebook', label: 'Facebook URL', type: 'text' },
+            { key: 'social_instagram', label: 'Instagram URL', type: 'text' },
+            { key: 'social_twitter', label: 'Twitter/X URL', type: 'text' },
         ],
         content: [
             { key: 'site_banner_text', label: 'Announcement Banner', type: 'text' },
+        ],
+        logic: [
+            { key: 'enable_signups', label: 'Enable New Signups', type: 'boolean' },
+            { key: 'enable_payments', label: 'Enable Payments', type: 'boolean' },
+            { key: 'show_mobile_footer', label: 'Show Mobile Footer', type: 'boolean' },
+            { key: 'require_email_verification', label: 'Require Email Verification', type: 'boolean' },
         ],
         subscriptions: [
             { key: 'subscription_plans', label: 'Plans Configuration (JSON)', type: 'json', multiline: true, height: 'h-96' },

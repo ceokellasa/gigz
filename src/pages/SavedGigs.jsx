@@ -9,6 +9,7 @@ export default function SavedGigs() {
     const { user } = useAuth()
     const [savedGigs, setSavedGigs] = useState([])
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         if (user) {
@@ -45,6 +46,7 @@ export default function SavedGigs() {
             setSavedGigs(data.filter(s => s.gigs)) // Filter out any with deleted gigs
         } catch (error) {
             console.error('Error fetching saved gigs:', error)
+            setError(error)
         } finally {
             setLoading(false)
         }
@@ -83,6 +85,12 @@ export default function SavedGigs() {
                 </h2>
                 <p className="mt-2 text-slate-500">Gigs you've bookmarked for later.</p>
             </div>
+
+            {error && (
+                <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
+                    Error loading saved gigs: {error.message}
+                </div>
+            )}
 
             {loading ? (
                 <div className="mt-12 text-center">

@@ -30,6 +30,29 @@ export default function AdminUserList() {
         }
     }
 
+    const [error, setError] = useState(null)
+
+    const handlePasswordReset = async (email) => {
+        if (!email) {
+            toast.error('User email not found')
+            return
+        }
+
+        if (!window.confirm(`Send password reset link to ${email}?`)) return
+
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/update-password`,
+            })
+
+            if (error) throw error
+            toast.success(`Password reset email sent to ${email}`)
+        } catch (error) {
+            console.error('Error sending reset link:', error)
+            toast.error(error.message || 'Failed to send reset link')
+        }
+    }
+
     const deleteUser = async (id) => {
         if (!window.confirm('Are you sure? This will delete the user and all their gigs/data. This cannot be undone.')) return
 
@@ -60,6 +83,18 @@ export default function AdminUserList() {
 
     return (
         <div className="space-y-4">
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
+                    <span>Error loading users: {error.message}</span>
+                    <button
+                        onClick={() => { setError(null); fetchUsers(); }}
+                        className="text-sm font-semibold underline hover:text-red-800"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
+
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <input
@@ -77,7 +112,7 @@ export default function AdminUserList() {
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">User</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Role</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Joined</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Last Active</th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -105,12 +140,19 @@ export default function AdminUserList() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                    {new Date(user.created_at).toLocaleDateString()}
+                                    {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'Unknown'}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
+                                    <button
+                                        onClick={() => handlePasswordReset(user.email)}
+                                        className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-2 rounded-full hover:bg-indigo-100 transition-colors"
+                                        title="Send Password Reset Link"
+                                    >
+                                        <Mail className="h-4 w-4" />
+                                    </button>
                                     <button
                                         onClick={() => deleteUser(user.id)}
-                                        className="text-red-600 hover:text-red-900"
+                                        className="text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-full hover:bg-red-100 transition-colors"
                                         title="Delete User"
                                     >
                                         <Trash2 className="h-4 w-4" />

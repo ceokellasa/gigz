@@ -41,7 +41,8 @@ export default function PostGig() {
         location: '',
         is_remote: false,
         required_skills: '',
-        mobile_number: ''
+        mobile_number: '',
+        contact_for_price: false
     })
 
     useEffect(() => {
@@ -108,7 +109,7 @@ export default function PostGig() {
                 title: formData.title,
                 description: formData.description,
                 category: formData.category,
-                budget: parseFloat(formData.budget),
+                budget: formData.budget, // Now a string
                 deadline: formData.deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
                 location: formData.location || null,
                 is_remote: formData.is_remote,
@@ -262,25 +263,55 @@ export default function PostGig() {
 
                             {/* Budget Amount */}
                             <div>
-                                <label htmlFor="budget" className="block text-sm font-medium text-slate-700 mb-1">
-                                    {formData.budget_type === 'fixed' ? 'Total Budget (₹)' : 'Hourly Rate (₹/hr)'}
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span className="text-slate-500 font-bold">₹</span>
+                                <div className="flex justify-between items-center mb-1">
+                                    <label htmlFor="budget" className="block text-sm font-medium text-slate-700">
+                                        {formData.budget_type === 'fixed' ? 'Total Budget (₹)' : 'Hourly Rate (₹/hr)'}
+                                    </label>
+
+                                    <div className="flex items-center">
+                                        <input
+                                            id="contact_for_price"
+                                            name="contact_for_price"
+                                            type="checkbox"
+                                            checked={formData.contact_for_price}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                setFormData({
+                                                    ...formData,
+                                                    contact_for_price: checked,
+                                                    budget: checked ? 'Contact for Price' : (formData.budget === 'Contact for Price' ? '' : formData.budget)
+                                                });
+                                            }}
+                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded"
+                                        />
+                                        <label htmlFor="contact_for_price" className="ml-2 block text-xs text-slate-500 font-medium cursor-pointer select-none">
+                                            Contact for Budget
+                                        </label>
                                     </div>
+                                </div>
+
+                                <div className="relative">
+                                    {!formData.contact_for_price && (
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-slate-500 font-bold">₹</span>
+                                        </div>
+                                    )}
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="budget"
                                         id="budget"
                                         required
-                                        min="0"
+                                        disabled={formData.contact_for_price}
                                         value={formData.budget}
                                         onChange={handleChange}
-                                        className="input-field pl-8"
-                                        placeholder={formData.budget_type === 'fixed' ? '5000' : '500'}
+                                        className={clsx(
+                                            "input-field",
+                                            !formData.contact_for_price && "pl-8",
+                                            formData.contact_for_price && "bg-slate-100 text-slate-500 cursor-not-allowed"
+                                        )}
+                                        placeholder={formData.budget_type === 'fixed' ? 'e.g. 5000 or 15000-20000' : 'e.g. 500'}
                                     />
-                                    {formData.budget_type === 'hourly' && (
+                                    {formData.budget_type === 'hourly' && !formData.contact_for_price && (
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <span className="text-slate-400 text-sm">/hour</span>
                                         </div>
