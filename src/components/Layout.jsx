@@ -35,12 +35,10 @@ export default function Layout() {
                         <div className="flex justify-between h-auto py-4 px-4 sm:px-6 lg:px-8">
                             <div className="flex">
                                 <div className="flex-shrink-0 flex items-center">
-                                    <Link to="/" className="flex items-center">
-                                        <img
-                                            src={settings.site_logo_url || "/kelasa-logo.png"}
-                                            alt={settings.site_name || "Kelasa"}
-                                            className="h-16 w-auto"
-                                        />
+                                    <Link to="/" className="flex items-center gap-2">
+                                        <span className="font-sans font-black italic text-4xl tracking-tighter text-slate-900 uppercase transform -skew-x-6 py-2">
+                                            KELLASA
+                                        </span>
                                     </Link>
                                 </div>
                                 <div className="hidden sm:ml-8 sm:flex sm:space-x-8">
@@ -192,12 +190,10 @@ export default function Layout() {
 
             {/* Mobile Top Bar (Logo only) */}
             <div className="md:hidden sticky top-0 z-50 glass-panel px-4 py-3 flex justify-center items-center rounded-b-xl border-t-0">
-                <Link to="/" className="flex items-center">
-                    <img
-                        src={settings.site_logo_url || "/kelasa-logo.png"}
-                        alt={settings.site_name || "Kelasa"}
-                        className="h-12 w-auto"
-                    />
+                <Link to="/" className="flex items-center gap-2">
+                    <span className="font-sans font-black italic text-3xl tracking-tighter text-slate-900 uppercase transform -skew-x-6">
+                        KELLASA
+                    </span>
                 </Link>
             </div>
 
