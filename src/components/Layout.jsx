@@ -17,7 +17,7 @@ export default function Layout() {
     }
 
     const navigation = [
-        { name: 'Dashboard', href: '/', current: true },
+        { name: 'Home', href: '/', current: true },
         { name: 'Post a Gig', href: '/post-gig', current: false },
         { name: 'Find Work', href: '/gigs', current: false },
     ]
@@ -218,9 +218,18 @@ export default function Layout() {
 
             {/* Mobile Bottom Navigation */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-2 z-50 flex justify-between items-center pb-safe">
+                <Link to="/" className="flex flex-col items-center gap-1 text-slate-500 hover:text-indigo-600">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    <span className="text-[10px] font-medium">Home</span>
+                </Link>
                 <Link to="/gigs" className="flex flex-col items-center gap-1 text-slate-500 hover:text-indigo-600">
                     <Briefcase className="h-6 w-6" />
                     <span className="text-[10px] font-medium">Jobs</span>
+                </Link>
+                <Link to="/post-gig" className="-mt-8">
+                    <div className="bg-indigo-600 p-4 rounded-full shadow-lg shadow-indigo-500/40 text-white hover:bg-indigo-700 transition-colors">
+                        <PlusCircle className="h-7 w-7" />
+                    </div>
                 </Link>
                 <Link to="/messages" className="flex flex-col items-center gap-1 text-slate-500 hover:text-indigo-600 relative">
                     <MessageSquare className="h-6 w-6" />
@@ -230,17 +239,6 @@ export default function Layout() {
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                     )}
-                </Link>
-                <Link to="/post-gig" className="-mt-8">
-                    <div className="bg-indigo-600 p-4 rounded-full shadow-lg shadow-indigo-500/40 text-white hover:bg-indigo-700 transition-colors">
-                        <PlusCircle className="h-7 w-7" />
-                    </div>
-                </Link>
-                <Link to="/" className="flex flex-col items-center gap-1 text-slate-500 hover:text-indigo-600">
-                    <div className="h-6 w-6 flex items-center justify-center">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                    </div>
-                    <span className="text-[10px] font-medium">Dash</span>
                 </Link>
                 <Link to="/profile" className="flex flex-col items-center gap-1 text-slate-500 hover:text-indigo-600">
                     {profile?.avatar_url ? (

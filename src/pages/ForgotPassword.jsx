@@ -63,11 +63,7 @@ export default function ForgotPassword() {
 
     if (success) {
         return (
-            <div
-                className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-cover bg-center"
-                style={{ backgroundImage: `url('/images/login-bg.png')` }}
-            >
-                <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+            <div className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
                 <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
                     <div className="glass-panel py-8 px-6 shadow-2xl rounded-2xl sm:px-10 border border-white/20 bg-white/90 backdrop-blur-md text-center">
                         <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
@@ -95,11 +91,7 @@ export default function ForgotPassword() {
     }
 
     return (
-        <div
-            className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-cover bg-center"
-            style={{ backgroundImage: `url('/images/login-bg.png')` }}
-        >
-            <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+        <div className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
 
             <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">

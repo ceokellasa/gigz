@@ -2,21 +2,25 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../components/Toast'
-import { UserPlus, Loader2, Mail, Lock, User, Briefcase, Hammer } from 'lucide-react'
+import { UserPlus, Loader2, Mail, Lock, User, Briefcase, Hammer, Phone } from 'lucide-react'
 import { validators, validateField, sanitizeInput } from '../lib/validation'
 import clsx from 'clsx'
+import { useAuth } from '../context/AuthContext'
 
 export default function Signup() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
         fullName: '',
+        phone: '',
         role: 'worker'
     })
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({})
+    const [showSuccessModal, setShowSuccessModal] = useState(false)
     const navigate = useNavigate()
     const toast = useToast()
+    const { refreshProfile } = useAuth()
 
     const validateForm = () => {
         const newErrors = {}
@@ -29,6 +33,9 @@ export default function Signup() {
 
         const nameError = validateField(formData.fullName, [validators.required, validators.minLength(2)], 'Name')
         if (nameError) newErrors.fullName = nameError
+
+        const phoneError = validateField(formData.phone, [validators.required, validators.minLength(10)], 'Phone Number')
+        if (phoneError) newErrors.phone = phoneError
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -56,6 +63,7 @@ export default function Signup() {
                 options: {
                     data: {
                         full_name: sanitizeInput(formData.fullName),
+                        phone: formData.phone.trim(),
                         role: formData.role,
                     },
                 },
@@ -71,8 +79,8 @@ export default function Signup() {
             }
 
             if (data.user) {
-                toast.success('Account created! Please check your email for verification.')
-                navigate('/login')
+                // Show success modal instead of navigating immediately
+                setShowSuccessModal(true)
             }
         } catch (err) {
             toast.error('Something went wrong. Please try again.')
@@ -82,13 +90,34 @@ export default function Signup() {
         }
     }
 
-    return (
-        <div
-            className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat relative"
-            style={{ backgroundImage: `url('/images/login-bg.png')` }}
-        >
-            <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+    if (showSuccessModal) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center animate-in fade-in zoom-in duration-300">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Mail className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Check your email</h2>
+                    <p className="text-slate-600 mb-6">
+                        We've sent a verification link to <br />
+                        <span className="font-semibold text-slate-900">{formData.email}</span>
+                    </p>
+                    <p className="text-sm text-slate-500 mb-8">
+                        Please verify your email to unlock full access to KELLASA.
+                    </p>
+                    <Link
+                        to="/login"
+                        className="btn-primary w-full block py-3"
+                    >
+                        Continue to Login
+                    </Link>
+                </div>
+            </div>
+        )
+    }
 
+    return (
+        <div className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
             <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
                     <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-3 rounded-2xl shadow-lg">
@@ -156,6 +185,30 @@ export default function Signup() {
                                 />
                             </div>
                             {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                        </div>
+
+                        {/* Phone Number */}
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
+                                Phone Number
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Phone className="h-5 w-5 text-slate-400" />
+                                </div>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    required
+                                    className={clsx('input-field pl-10', errors.phone && 'border-red-500')}
+                                    placeholder="+91 9876543210"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    disabled={loading}
+                                />
+                            </div>
+                            {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                         </div>
 
                         {/* Password */}
