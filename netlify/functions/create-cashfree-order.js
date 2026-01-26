@@ -24,6 +24,8 @@ exports.handler = async function (event, context) {
 
         const orderId = `order_${user_id.split('-')[0]}_${Date.now()}`;
 
+        const siteUrl = (process.env.VITE_SITE_URL || 'http://localhost:5173').replace(/\/$/, '');
+
         const payload = JSON.stringify({
             order_id: orderId,
             order_amount: price,
@@ -35,7 +37,7 @@ exports.handler = async function (event, context) {
                 customer_name: user_name || 'User'
             },
             order_meta: {
-                return_url: `${process.env.VITE_SITE_URL || 'http://localhost:5173'}/subscription/success?order_id={order_id}&plan_id=${plan_id}`,
+                return_url: `${siteUrl}/subscription/success?order_id={order_id}&plan_id=${plan_id}`,
             },
             order_note: `Subscription for ${plan_id}`
         });
