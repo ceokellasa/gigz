@@ -11,20 +11,25 @@ export const initializeCashfree = async () => {
 
 export const createPaymentSession = async (plan, user, profile) => {
     try {
-        const { data, error } = await supabase.functions.invoke('create-cashfree-order', {
-            body: {
+        // Call Netlify Function
+        const response = await fetch('/.netlify/functions/create-cashfree-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
                 plan_id: plan.id,
                 price: plan.price,
                 user_id: user.id,
                 user_email: user.email,
                 user_phone: profile?.phone_number || '9999999999',
                 user_name: profile?.full_name || 'User'
-            }
+            })
         })
 
-        if (error) {
-            console.error('Supabase Function Error:', error)
-            throw new Error('Failed to initiate payment. Please try again.')
+        const data = await response.json()
+
+        if (!response.ok) {
+            console.error('Payment Error:', data)
+            throw new Error(data.error || 'Failed to initiate payment')
         }
 
         return data.payment_session_id
