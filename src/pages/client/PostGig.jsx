@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { PlusCircle, MapPin, Upload, X, Briefcase, Code, PenTool, Megaphone, Pen, Music, Video, Settings, Clock, IndianRupee, Truck, UtensilsCrossed, GraduationCap, Sparkles, Wrench, Camera, Car, Home, Scissors, Package } from 'lucide-react'
 import clsx from 'clsx'
+import LocationInput from '../../components/LocationInput'
 
 const CATEGORIES = [
     { id: 'Tech', name: 'Tech & IT', icon: Code },
@@ -42,7 +43,9 @@ export default function PostGig() {
         is_remote: false,
         required_skills: '',
         mobile_number: '',
-        contact_for_price: false
+        contact_for_price: false,
+        latitude: null,
+        longitude: null
     })
 
     useEffect(() => {
@@ -117,7 +120,9 @@ export default function PostGig() {
                 image_url: imageUrl,
                 client_id: user.id,
                 status: 'open',
-                mobile_number: formData.mobile_number
+                mobile_number: formData.mobile_number,
+                latitude: formData.latitude,
+                longitude: formData.longitude
             }
 
             // Try to add budget_type if the column exists
@@ -416,21 +421,21 @@ export default function PostGig() {
 
                         <div>
                             <label htmlFor="location" className="block text-sm font-medium text-slate-700 mb-1">Location</label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <MapPin className="h-5 w-5 text-slate-400" />
-                                </div>
-                                <input
-                                    type="text"
-                                    name="location"
-                                    id="location"
-                                    disabled={formData.is_remote}
-                                    value={formData.location}
-                                    onChange={handleChange}
-                                    className="input-field pl-10 disabled:bg-slate-100 disabled:text-slate-500"
-                                    placeholder="e.g. Mumbai, India"
-                                />
-                            </div>
+
+                            <LocationInput
+                                value={formData.location}
+                                disabled={formData.is_remote}
+                                onChange={(val) => setFormData(prev => ({ ...prev, location: val }))}
+                                onLocationSelect={(data) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        location: data.address,
+                                        latitude: data.lat,
+                                        longitude: data.lng
+                                    }))
+                                }}
+                            />
+
                             <div className="mt-4 flex items-center">
                                 <input
                                     id="is_remote"

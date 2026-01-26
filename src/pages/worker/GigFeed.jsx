@@ -26,27 +26,80 @@ export default function GigFeed() {
         budgetType: 'all', // all, fixed, hourly
         minBudget: '',
         maxBudget: '',
-        remoteOnly: false
+        remoteOnly: false,
+        nearMe: false
     })
+    const [userLoc, setUserLoc] = useState(null)
 
     useEffect(() => {
         fetchGigs()
         if (user) {
             fetchSavedGigs()
         }
-    }, [user])
+    }, [user, filters.nearMe]) // Re-fetch when nearMe toggles
+
+    const requestLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setUserLoc({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    })
+                    setFilters(prev => ({ ...prev, nearMe: true }))
+                },
+                (error) => {
+                    console.error('Error getting location:', error)
+                    alert('Could not get your location. Please enable location services.')
+                    setFilters(prev => ({ ...prev, nearMe: false }))
+                }
+            )
+        } else {
+            alert('Geolocation is not supported by this browser.')
+        }
+    }
 
     const fetchGigs = async () => {
+        setLoading(true)
         try {
-            let query = supabase
-                .from('gigs')
-                .select('*, mobile_number, profiles:client_id(full_name, avatar_url)')
-                .eq('status', 'open')
-                .order('created_at', { ascending: false })
+            let data = []
 
-            const { data, error } = await query
+            if (filters.nearMe && userLoc) {
+                // Use RPC for geospatial search
+                const { data: nearbyData, error } = await supabase
+                    .rpc('get_nearby_gigs', {
+                        user_lat: userLoc.lat,
+                        user_lng: userLoc.lng,
+                        radius_km: 50 // Default 50km radius
+                    })
 
-            if (error) throw error
+                if (error) throw error
+                data = nearbyData || []
+
+                // Need to transform data structure slightly to match standard format if RPC returns different shape
+                // But our RPC returns almost same shape, just flattened client info
+                // We map it to restore the nested profiles object for UI compatibility
+                data = data.map(g => ({
+                    ...g,
+                    profiles: {
+                        full_name: g.client_full_name,
+                        avatar_url: g.client_avatar_url
+                    }
+                }))
+
+            } else {
+                // Standard Query
+                let query = supabase
+                    .from('gigs')
+                    .select('*, mobile_number, profiles:client_id(full_name, avatar_url)')
+                    .eq('status', 'open')
+                    .order('created_at', { ascending: false })
+
+                const { data: standardData, error } = await query
+                if (error) throw error
+                data = standardData || []
+            }
+
             setGigs(data)
         } catch (error) {
             console.error('Error fetching gigs:', error)
@@ -55,45 +108,14 @@ export default function GigFeed() {
         }
     }
 
-    const fetchSavedGigs = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('saved_gigs')
-                .select('gig_id')
-                .eq('user_id', user.id)
+    // ... fetchSavedGigs ...
 
-            if (error) throw error
-            setSavedGigs(data.map(s => s.gig_id))
-        } catch (error) {
-            console.error('Error fetching saved gigs:', error)
-        }
-    }
-
-    const toggleSaveGig = async (gigId) => {
-        if (!user) return
-
-        const isSaved = savedGigs.includes(gigId)
-
-        try {
-            if (isSaved) {
-                await supabase
-                    .from('saved_gigs')
-                    .delete()
-                    .eq('user_id', user.id)
-                    .eq('gig_id', gigId)
-                setSavedGigs(savedGigs.filter(id => id !== gigId))
-            } else {
-                await supabase
-                    .from('saved_gigs')
-                    .insert({ user_id: user.id, gig_id: gigId })
-                setSavedGigs([...savedGigs, gigId])
-            }
-        } catch (error) {
-            console.error('Error toggling save:', error)
-        }
-    }
+    // ... toggleSaveGig ...
 
     const filteredGigs = gigs.filter((gig) => {
+        // If searching nearby, we already filtered by location/status in RPC
+        // But we still apply client-side filters for text, category, etc.
+
         const matchesSearch = gig.title.toLowerCase().includes(filters.search.toLowerCase()) ||
             gig.description.toLowerCase().includes(filters.search.toLowerCase())
 
@@ -110,6 +132,9 @@ export default function GigFeed() {
         const matchesMaxBudget = filters.maxBudget === '' || gig.budget <= parseFloat(filters.maxBudget)
 
         const matchesRemote = !filters.remoteOnly || gig.is_remote
+
+        // If nearMe is on, we exclude remote gigs usually, but RPC handles that. 
+        // Just standard filter checks here.
 
         return matchesSearch && matchesCategory && matchesLocation &&
             matchesBudgetType && matchesMinBudget && matchesMaxBudget && matchesRemote
@@ -128,7 +153,8 @@ export default function GigFeed() {
             budgetType: 'all',
             minBudget: '',
             maxBudget: '',
-            remoteOnly: false
+            remoteOnly: false,
+            nearMe: false
         })
     }
 
@@ -138,7 +164,8 @@ export default function GigFeed() {
         filters.budgetType !== 'all',
         filters.minBudget !== '',
         filters.maxBudget !== '',
-        filters.remoteOnly
+        filters.remoteOnly,
+        filters.nearMe
     ].filter(Boolean).length
 
     return (
@@ -166,6 +193,18 @@ export default function GigFeed() {
                         onChange={handleFilterChange}
                     />
                 </div>
+                <button
+                    onClick={filters.nearMe ? () => setFilters(p => ({ ...p, nearMe: false })) : requestLocation}
+                    className={clsx(
+                        'flex items-center gap-2 px-6 py-4 rounded-2xl font-medium transition-all',
+                        filters.nearMe
+                            ? 'bg-green-600 text-white'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                    )}
+                >
+                    <MapPin className={clsx("h-5 w-5", filters.nearMe && "animate-bounce")} />
+                    <span className="hidden sm:inline">{filters.nearMe ? 'Nearby Active' : 'Near Me'}</span>
+                </button>
                 <button
                     onClick={() => setShowFilters(!showFilters)}
                     className={clsx(
@@ -346,6 +385,12 @@ export default function GigFeed() {
                                             <span className="inline-flex items-center text-xs text-green-600 font-medium">
                                                 <Globe className="h-3 w-3 mr-1" />
                                                 Remote
+                                            </span>
+                                        )}
+                                        {gig.dist_km && (
+                                            <span className="inline-flex items-center text-xs text-indigo-600 font-medium ml-2">
+                                                <MapPin className="h-3 w-3 mr-1" />
+                                                {gig.dist_km.toFixed(1)} km away
                                             </span>
                                         )}
                                     </div>
