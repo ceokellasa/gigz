@@ -20,6 +20,7 @@ const GigDetails = lazy(() => import('./pages/worker/GigDetails'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Messages = lazy(() => import('./pages/Messages'))
 const Subscription = lazy(() => import('./pages/Subscription'))
+const SubscriptionSuccess = lazy(() => import('./pages/SubscriptionSuccess'))
 const SavedGigs = lazy(() => import('./pages/SavedGigs'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 
@@ -45,6 +46,7 @@ function App() {
                     <Route path="profile" element={<Profile />} />
                     <Route path="messages" element={<Messages />} />
                     <Route path="subscription" element={<Subscription />} />
+                    <Route path="subscription/success" element={<SubscriptionSuccess />} />
                     <Route path="saved" element={<SavedGigs />} />
                     <Route path="admin" element={<AdminDashboard />} />
                     {/* 404 Page */}

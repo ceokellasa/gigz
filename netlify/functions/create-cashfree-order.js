@@ -35,7 +35,7 @@ exports.handler = async function (event, context) {
                 customer_name: user_name || 'User'
             },
             order_meta: {
-                return_url: `${process.env.VITE_SITE_URL || 'http://localhost:5173'}/subscription/success?order_id={order_id}`,
+                return_url: `${process.env.VITE_SITE_URL || 'http://localhost:5173'}/subscription/success?order_id={order_id}&plan_id=${plan_id}`,
             },
             order_note: `Subscription for ${plan_id}`
         });
