@@ -22,6 +22,9 @@ const Messages = lazy(() => import('./pages/Messages'))
 const Subscription = lazy(() => import('./pages/Subscription'))
 const SubscriptionSuccess = lazy(() => import('./pages/SubscriptionSuccess'))
 const SavedGigs = lazy(() => import('./pages/SavedGigs'))
+const ContactUs = lazy(() => import('./pages/ContactUs'))
+const Terms = lazy(() => import('./pages/Terms'))
+const Refunds = lazy(() => import('./pages/Refunds'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 
 function App() {
@@ -48,6 +51,9 @@ function App() {
                     <Route path="subscription" element={<Subscription />} />
                     <Route path="subscription/success" element={<SubscriptionSuccess />} />
                     <Route path="saved" element={<SavedGigs />} />
+                    <Route path="contact" element={<ContactUs />} />
+                    <Route path="terms" element={<Terms />} />
+                    <Route path="refunds" element={<Refunds />} />
                     <Route path="admin" element={<AdminDashboard />} />
                     {/* 404 Page */}
                     <Route path="*" element={<NotFound />} />

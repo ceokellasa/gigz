@@ -206,7 +206,9 @@ export default function Layout() {
             <footer className="glass-panel mt-auto border-t-0 rounded-t-2xl mx-4 mb-4 hidden md:block">
                 <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
                     <div className="flex justify-center space-x-6 md:order-2">
-                        {/* Footer Social Links */}
+                        <Link to="/contact" className="text-slate-400 hover:text-slate-500">Contact Us</Link>
+                        <Link to="/terms" className="text-slate-400 hover:text-slate-500">Terms</Link>
+                        <Link to="/refunds" className="text-slate-400 hover:text-slate-500">Refunds</Link>
                     </div>
                     <div className="mt-8 md:mt-0 md:order-1">
                         <p className="text-center text-base text-slate-400">
