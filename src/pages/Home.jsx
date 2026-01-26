@@ -333,6 +333,17 @@ export default function Home() {
                     </div>
                 </section>
             )}
+            {/* Mobile-Only Footer */}
+            <footer className="md:hidden py-8 px-4 border-t border-slate-200 mt-auto bg-slate-50 mb-16">
+                <div className="flex flex-col items-center gap-4 text-center">
+                    <p className="text-slate-400 text-sm">© 2026 KELLASA. All rights reserved.</p>
+                    <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+                        <Link to="/contact" className="text-slate-500 text-sm hover:text-indigo-600">Contact</Link>
+                        <Link to="/terms" className="text-slate-500 text-sm hover:text-indigo-600">Terms</Link>
+                        <Link to="/refunds" className="text-slate-500 text-sm hover:text-indigo-600">Refunds</Link>
+                    </div>
+                </div>
+            </footer>
         </div>
     )
 }
