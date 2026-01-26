@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../components/Toast'
-import { UserPlus, Loader2, Mail, Lock, User, Briefcase, Hammer, Phone } from 'lucide-react'
+import { UserPlus, Loader2, Mail, Lock, User, Briefcase, Hammer, Phone, Eye, EyeOff } from 'lucide-react'
 import { validators, validateField, sanitizeInput } from '../lib/validation'
 import clsx from 'clsx'
 import { useAuth } from '../context/AuthContext'
@@ -15,6 +15,7 @@ export default function Signup() {
         phone: '',
         role: 'worker'
     })
+    const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({})
     const [showSuccessModal, setShowSuccessModal] = useState(false)
@@ -226,15 +227,26 @@ export default function Signup() {
                                 <input
                                     id="password"
                                     name="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     autoComplete="new-password"
                                     required
-                                    className={clsx('input-field pl-10', errors.password && 'border-red-500')}
+                                    className={clsx('input-field pl-10 pr-10', errors.password && 'border-red-500')}
                                     placeholder="Min 6 characters"
                                     value={formData.password}
                                     onChange={handleChange}
                                     disabled={loading}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                    ) : (
+                                        <Eye className="h-5 w-5" />
+                                    )}
+                                </button>
                             </div>
                             {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                         </div>

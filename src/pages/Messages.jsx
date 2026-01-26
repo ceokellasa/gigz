@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { Send, User, MessageSquare, ArrowLeft, Loader2, RefreshCw, Paperclip, Image as ImageIcon, X } from 'lucide-react'
@@ -50,13 +50,21 @@ export default function Messages() {
             const participantIds = new Set()
 
             messagesData?.forEach(msg => {
-                if (!msg.gigs) return
                 let otherPersonId = null
                 if (msg.sender_id === user.id) {
-                    otherPersonId = msg.receiver_id || (msg.gigs.client_id !== user.id ? msg.gigs.client_id : null)
+                    otherPersonId = msg.receiver_id || (msg.gigs?.client_id && msg.gigs.client_id !== user.id ? msg.gigs.client_id : null)
                 } else {
                     otherPersonId = msg.sender_id
                 }
+
+                // Fallback for old messages without receiver_id where gig structure was implied
+                if (!otherPersonId && msg.gigs) {
+                    otherPersonId = msg.gigs.client_id === user.id ? null : msg.gigs.client_id // Can't determine easily without analyzing previous messages or role
+                    // Actually, if I am sender, and receiver is null, and it's a gig message, it went to gig owner? 
+                    // Or if I am owner, it went to... unknown?
+                    // With receiver_id added, this is cleaner.
+                }
+
                 if (otherPersonId && otherPersonId !== user.id) {
                     participantIds.add(otherPersonId)
                     msg._otherPersonId = otherPersonId
@@ -73,22 +81,23 @@ export default function Messages() {
             }
 
             messagesData?.forEach(msg => {
-                if (!msg.gigs || !msg._otherPersonId) return
+                if (!msg._otherPersonId) return
                 const otherPersonId = msg._otherPersonId
-                const convKey = `${msg.gig_id}-${otherPersonId}`
+                // If gig_id is null, use 'dm' as prefix
+                const convKey = `${msg.gig_id || 'dm'}-${otherPersonId}`
 
                 if (!conversationMap.has(convKey)) {
                     const otherProfile = profilesMap.get(otherPersonId)
                     conversationMap.set(convKey, {
                         id: convKey,
                         gig_id: msg.gig_id,
-                        gig_title: msg.gigs.title,
+                        gig_title: msg.gigs?.title || 'Support / Direct Message',
                         participant_id: otherPersonId,
                         participant_name: otherProfile?.full_name || 'Unknown User',
                         participant_avatar: otherProfile?.avatar_url,
                         last_message: msg.content,
                         last_message_at: msg.created_at,
-                        isOwner: msg.gigs.client_id === user.id
+                        isOwner: msg.gigs?.client_id === user.id
                     })
                 }
             })
@@ -100,6 +109,9 @@ export default function Messages() {
             setLoading(false)
         }
     }, [user])
+
+    // URL params for deep linking
+    const [searchParams] = useSearchParams()
 
     useEffect(() => {
         if (user) {
@@ -136,6 +148,46 @@ export default function Messages() {
         }
     }, [selectedConversation])
 
+    // Handle Support Mode deep link
+    useEffect(() => {
+        const initSupportChat = async () => {
+            const mode = searchParams.get('mode')
+            if (mode === 'support' && user && !loading) {
+                // Find Admin ID - trying simple role lookup
+                const { data: adminProfile } = await supabase
+                    .from('profiles')
+                    .select('id, full_name, avatar_url')
+                    .eq('role', 'admin')
+                    .limit(1)
+                    .single()
+
+                if (adminProfile) {
+                    const adminId = adminProfile.id
+
+                    // Check if we already have a conversation with this admin
+                    const existingConv = conversations.find(c => c.participant_id === adminId && !c.gig_id)
+
+                    if (existingConv) {
+                        setSelectedConversation(existingConv)
+                    } else {
+                        // Create draft conversation 
+                        setSelectedConversation({
+                            id: 'draft-support',
+                            gig_id: null,
+                            gig_title: 'Support Chat',
+                            participant_id: adminId,
+                            participant_name: adminProfile.full_name || 'Support Admin',
+                            participant_avatar: adminProfile.avatar_url,
+                            last_message: '',
+                            last_message_at: new Date().toISOString()
+                        })
+                    }
+                }
+            }
+        }
+        initSupportChat()
+    }, [searchParams, user, loading, conversations])
+
     useEffect(() => {
         scrollToBottom()
     }, [messages])
@@ -163,7 +215,7 @@ export default function Messages() {
 
     const uploadFile = async (file) => {
         const fileExt = file.name.split('.').pop()
-        const fileName = `${selectedConversation.gig_id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        const fileName = `${selectedConversation.gig_id || 'dm'}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
 
         const { error: uploadError } = await supabase.storage
             .from('chat-attachments')
@@ -181,19 +233,29 @@ export default function Messages() {
     const fetchMessages = async () => {
         if (!selectedConversation) return
 
-        const { data, error } = await supabase
+        let query = supabase
             .from('messages')
             .select('*, sender:sender_id(full_name, avatar_url)')
-            .eq('gig_id', selectedConversation.gig_id)
             .or(`sender_id.eq.${user.id},sender_id.eq.${selectedConversation.participant_id}`)
             .order('created_at', { ascending: true })
+
+        if (selectedConversation.gig_id) {
+            query = query.eq('gig_id', selectedConversation.gig_id)
+        } else {
+            query = query.is('gig_id', null)
+        }
+
+        const { data, error } = await query
 
         if (!error && data) {
             const filtered = data.filter(msg => {
                 const isMe = msg.sender_id === user.id
                 const isThem = msg.sender_id === selectedConversation.participant_id
 
-                if (isThem) return true
+                if (isThem) {
+                    // Start of support chat: accept if it matches our criteria
+                    return true
+                }
                 if (isMe) {
                     return !msg.receiver_id || msg.receiver_id === selectedConversation.participant_id
                 }
@@ -206,15 +268,27 @@ export default function Messages() {
     const subscribeToActiveConversation = () => {
         if (!selectedConversation) return null
 
+        const filter = selectedConversation.gig_id
+            ? `gig_id=eq.${selectedConversation.gig_id}`
+            : `gig_id=is.null`
+        // Postgres filter syntax for null might be tricky in realtime. 
+        // Usually 'gig_id=is.null' works OR we filter client side differently.
+        // Let's rely on receiving ALL inserts and filtering in the callback if realtime filter fails.
+
         const channel = supabase
             .channel(`active-conv-${selectedConversation.id}-${Date.now()}`)
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
                 table: 'messages',
-                filter: `gig_id=eq.${selectedConversation.gig_id}`
+                // filter: filter // Removing server-side filter for robustness with nulls, filtering client-side below
             }, async (payload) => {
                 const msg = payload.new
+
+                // Check if this message belongs to current conversation
+                const isSameGig = selectedConversation.gig_id ? (msg.gig_id === selectedConversation.gig_id) : (msg.gig_id === null)
+                if (!isSameGig) return
+
                 const isMe = msg.sender_id === user.id
                 const isThem = msg.sender_id === selectedConversation.participant_id
 

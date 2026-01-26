@@ -6,6 +6,7 @@ import { Users, Briefcase, Trash2, ShieldAlert, Activity, Settings } from 'lucid
 import AdminGigList from './AdminGigList'
 import AdminUserList from './AdminUserList'
 import AdminCMS from './AdminCMS'
+import AdminKYCRequests from './AdminKYCRequests'
 
 const ADMIN_EMAIL = 'nsjdfmjr@gmail.com'
 
@@ -101,8 +102,8 @@ export default function AdminDashboard() {
                     <button
                         onClick={() => setActiveTab('overview')}
                         className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'overview'
-                                ? 'border-indigo-500 text-indigo-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         Overview
@@ -110,8 +111,8 @@ export default function AdminDashboard() {
                     <button
                         onClick={() => setActiveTab('users')}
                         className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'users'
-                                ? 'border-indigo-500 text-indigo-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         Users
@@ -119,8 +120,8 @@ export default function AdminDashboard() {
                     <button
                         onClick={() => setActiveTab('gigs')}
                         className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'gigs'
-                                ? 'border-indigo-500 text-indigo-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         Gigs
@@ -128,11 +129,20 @@ export default function AdminDashboard() {
                     <button
                         onClick={() => setActiveTab('cms')}
                         className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'cms'
-                                ? 'border-indigo-500 text-indigo-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         CMS / Settings
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('kyc')}
+                        className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'kyc'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            }`}
+                    >
+                        KYC Requests
                     </button>
                 </nav>
             </div>
@@ -151,6 +161,8 @@ export default function AdminDashboard() {
                 )}
 
                 {activeTab === 'users' && <AdminUserList />}
+
+                {activeTab === 'kyc' && <AdminKYCRequests />}
 
                 {activeTab === 'gigs' && <AdminGigList />}
 

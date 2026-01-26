@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import { Search, MapPin, Briefcase, Globe, Heart, SlidersHorizontal, X, Clock, IndianRupee, Phone, Lock } from 'lucide-react'
+import { Search, MapPin, Briefcase, Globe, Heart, SlidersHorizontal, X, Clock, IndianRupee, Phone, Lock, Shield } from 'lucide-react'
 import { CategoryIcon } from '../../components/CategoryIcon'
 import clsx from 'clsx'
 
@@ -454,14 +454,25 @@ export default function GigFeed() {
                                     {gig.mobile_number && (
                                         <div className="mb-4">
                                             {isSubscribed ? (
-                                                <a
-                                                    href={`tel:${gig.mobile_number}`}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors border border-green-100"
-                                                >
-                                                    <Phone className="h-4 w-4" />
-                                                    {gig.mobile_number}
-                                                </a>
+                                                profile?.kyc_status === 'verified' ? (
+                                                    <a
+                                                        href={`tel:${gig.mobile_number}`}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors border border-green-100"
+                                                    >
+                                                        <Phone className="h-4 w-4" />
+                                                        {gig.mobile_number}
+                                                    </a>
+                                                ) : (
+                                                    <Link
+                                                        to="/profile"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-amber-100 transition-colors border border-amber-100"
+                                                    >
+                                                        <Shield className="h-4 w-4" />
+                                                        <span>Verify ID to view number</span>
+                                                    </Link>
+                                                )
                                             ) : (
                                                 <div className="flex items-center gap-2 bg-slate-50 text-slate-400 px-3 py-2 rounded-lg text-sm border border-slate-100">
                                                     <Lock className="h-4 w-4" />

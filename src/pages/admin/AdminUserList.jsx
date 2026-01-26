@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Trash2, Mail, Shield, ShieldOff, Search } from 'lucide-react'
 import { useToast } from '../../components/Toast'
+import clsx from 'clsx'
 
 export default function AdminUserList() {
     const [users, setUsers] = useState([])
@@ -32,6 +33,23 @@ export default function AdminUserList() {
 
     const [error, setError] = useState(null)
 
+    const handleKYCUpdate = async (userId, status) => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ kyc_status: status })
+                .eq('id', userId)
+
+            if (error) throw error
+
+            setUsers(users.map(u => u.id === userId ? { ...u, kyc_status: status } : u))
+            toast.success(`User KYC updated to ${status}`)
+        } catch (err) {
+            console.error(err)
+            toast.error("Failed to update KYC")
+        }
+    }
+
     const handlePasswordReset = async (email) => {
         if (!email) {
             toast.error('User email not found')
@@ -57,12 +75,6 @@ export default function AdminUserList() {
         if (!window.confirm('Are you sure? This will delete the user and all their gigs/data. This cannot be undone.')) return
 
         try {
-            // Note: Deleting from auth.users requires server-side admin client usually. 
-            // From client-side with RLS, we might only be able to delete the profile if policies allow.
-            // For this 'admin' simulation with the hardcoded email RLS, we can delete from 'profiles'.
-            // Real auth deletion needs a Supabase Edge Function or backend.
-            // We will attempt to delete the profile which usually cascades or effectively disables the user in the app logic.
-
             const { error } = await supabase.from('profiles').delete().eq('id', id)
             if (error) throw error
 
@@ -76,7 +88,7 @@ export default function AdminUserList() {
 
     const filteredUsers = users.filter(user =>
         user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) // Note: email might not always be in profiles depending on schema, but usually we sync it.
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
     if (loading) return <div className="text-center py-8">Loading users...</div>
@@ -111,8 +123,8 @@ export default function AdminUserList() {
                     <thead className="bg-slate-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">User</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Role</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Last Active</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">KYC Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Document</th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -130,29 +142,56 @@ export default function AdminUserList() {
                                         </div>
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-slate-900">{user.full_name || 'No Name'}</div>
-                                            <div className="text-sm text-slate-500">{user.location || 'No Location'}</div>
+                                            <div className="text-sm text-slate-500">{user.role || 'user'}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-slate-100 text-slate-800">
-                                        {user.role || 'user'}
+                                    <span className={clsx("px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                                        user.kyc_status === 'verified' && "bg-green-100 text-green-800",
+                                        user.kyc_status === 'pending' && "bg-amber-100 text-amber-800",
+                                        user.kyc_status === 'rejected' && "bg-red-100 text-red-800",
+                                        user.kyc_status === 'none' && "bg-slate-100 text-slate-800"
+                                    )}>
+                                        {user.kyc_status || 'none'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                    {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'Unknown'}
+                                    {user.kyc_document_url ? (
+                                        <a
+                                            href={`https://ixplbjvjofjyumjcmgjd.supabase.co/storage/v1/object/public/kyc-documents/${user.kyc_document_url}`} // Assuming public for admin view or use signed url logic if strictly private
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-indigo-600 hover:underline flex items-center gap-1"
+                                        >
+                                            View ID <Search className="w-3 h-3" />
+                                        </a>
+                                    ) : (
+                                        <span className="text-slate-400">No Doc</span>
+                                    )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
-                                    <button
-                                        onClick={() => handlePasswordReset(user.email)}
-                                        className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-2 rounded-full hover:bg-indigo-100 transition-colors"
-                                        title="Send Password Reset Link"
-                                    >
-                                        <Mail className="h-4 w-4" />
-                                    </button>
+                                    {user.kyc_status === 'pending' && (
+                                        <>
+                                            <button
+                                                onClick={() => handleKYCUpdate(user.id, 'verified')}
+                                                className="text-green-600 hover:text-green-900 bg-green-50 p-2 rounded-full hover:bg-green-100 transition-colors"
+                                                title="Approve KYC"
+                                            >
+                                                <Shield className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleKYCUpdate(user.id, 'rejected')}
+                                                className="text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-full hover:bg-red-100 transition-colors"
+                                                title="Reject KYC"
+                                            >
+                                                <ShieldOff className="h-4 w-4" />
+                                            </button>
+                                        </>
+                                    )}
                                     <button
                                         onClick={() => deleteUser(user.id)}
-                                        className="text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-full hover:bg-red-100 transition-colors"
+                                        className="text-slate-400 hover:text-red-600 p-2 transition-colors"
                                         title="Delete User"
                                     >
                                         <Trash2 className="h-4 w-4" />

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { User, MapPin, Briefcase, Camera, Save, LogOut, LogIn, UserPlus, Crown, Heart, LayoutDashboard, ShieldAlert } from 'lucide-react'
+import { User, MapPin, Briefcase, Camera, Save, LogOut, LogIn, UserPlus, Crown, Heart, LayoutDashboard, ShieldAlert, MessageSquare, LifeBuoy } from 'lucide-react'
+import KYCVerification from '../components/KYCVerification'
 
 export default function Profile() {
-    const { user, profile, signOut } = useAuth()
+    const { user, profile, signOut, refreshProfile } = useAuth()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState(null)
@@ -244,98 +245,116 @@ export default function Profile() {
                     </div>
 
                     {/* Support Section */}
-                    <div className="bg-indigo-50 rounded-xl p-4 flex items-center justify-between sm:hidden mb-6">
+                    <div className="bg-indigo-50 rounded-xl p-4 flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-sm font-semibold text-indigo-900">Need Help?</h3>
-                            <p className="text-xs text-indigo-700">Contact our support team</p>
+                            <h3 className="text-sm font-semibold text-indigo-900 flex items-center gap-2">
+                                <LifeBuoy className="h-4 w-4" />
+                                Need Help?
+                            </h3>
+                            <p className="text-xs text-indigo-700">Chat with our support team</p>
                         </div>
-                        <a
-                            href="mailto:helpatkelasa@gmail.com"
-                            className="bg-white text-indigo-600 px-4 py-2 rounded-lg text-sm font-medium shadow-sm active:scale-95 transition-transform"
+                        <Link
+                            to="/messages?mode=support"
+                            className="bg-white text-indigo-600 px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-indigo-50 transition-colors flex items-center gap-2"
                         >
-                            help@kellasa.com
-                        </a>
+                            <MessageSquare className="h-4 w-4" />
+                            Chat Now
+                        </Link>
                     </div>
 
-                    {/* Basic Info */}
-                    <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                        <div className="sm:col-span-3">
-                            <label htmlFor="full_name" className="block text-sm font-medium text-slate-700">
-                                Full Name
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <User className="h-5 w-5 text-slate-400" />
-                                </div>
-                                <input
-                                    type="text"
-                                    name="full_name"
-                                    id="full_name"
-                                    value={formData.full_name}
-                                    onChange={e => setFormData({ ...formData, full_name: e.target.value })}
-                                    className="input-field pl-10"
-                                />
-                            </div>
+                    {/* KYC Verification Section */}
+                    <KYCVerification profile={profile} onUpdate={refreshProfile} />
+
+                    {/* Profile Details Card */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="p-6 border-b border-slate-200 bg-slate-50">
+                            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <LayoutDashboard className="h-5 w-5 text-indigo-600" />
+                                Profile Details
+                            </h2>
                         </div>
 
-                        <div className="sm:col-span-3">
-                            <label htmlFor="location" className="block text-sm font-medium text-slate-700">
-                                Location
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <MapPin className="h-5 w-5 text-slate-400" />
+                        <div className="p-6">
+                            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="full_name" className="block text-sm font-medium text-slate-700">
+                                        Full Name
+                                    </label>
+                                    <div className="mt-1 relative rounded-md shadow-sm">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <User className="h-5 w-5 text-slate-400" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="full_name"
+                                            id="full_name"
+                                            value={formData.full_name}
+                                            onChange={e => setFormData({ ...formData, full_name: e.target.value })}
+                                            className="input-field pl-10"
+                                        />
+                                    </div>
                                 </div>
-                                <input
-                                    type="text"
-                                    name="location"
-                                    id="location"
-                                    placeholder="e.g. New York, NY"
-                                    value={formData.location}
-                                    onChange={e => setFormData({ ...formData, location: e.target.value })}
-                                    className="input-field pl-10"
-                                />
-                            </div>
-                        </div>
 
-                        <div className="sm:col-span-6">
-                            <label htmlFor="bio" className="block text-sm font-medium text-slate-700">
-                                Bio
-                            </label>
-                            <div className="mt-1">
-                                <textarea
-                                    id="bio"
-                                    name="bio"
-                                    rows={4}
-                                    className="input-field"
-                                    placeholder="Tell us about yourself, your experience, and what you're looking for."
-                                    value={formData.bio}
-                                    onChange={e => setFormData({ ...formData, bio: e.target.value })}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="sm:col-span-6">
-                            <label htmlFor="skills" className="block text-sm font-medium text-slate-700">
-                                Skills
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Briefcase className="h-5 w-5 text-slate-400" />
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="location" className="block text-sm font-medium text-slate-700">
+                                        Location
+                                    </label>
+                                    <div className="mt-1 relative rounded-md shadow-sm">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <MapPin className="h-5 w-5 text-slate-400" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="location"
+                                            id="location"
+                                            placeholder="e.g. New York, NY"
+                                            value={formData.location}
+                                            onChange={e => setFormData({ ...formData, location: e.target.value })}
+                                            className="input-field pl-10"
+                                        />
+                                    </div>
                                 </div>
-                                <input
-                                    type="text"
-                                    name="skills"
-                                    id="skills"
-                                    placeholder="e.g. React, Design, Writing (comma separated)"
-                                    value={formData.skills}
-                                    onChange={e => setFormData({ ...formData, skills: e.target.value })}
-                                    className="input-field pl-10"
-                                />
+
+                                <div className="sm:col-span-6">
+                                    <label htmlFor="bio" className="block text-sm font-medium text-slate-700">
+                                        Bio
+                                    </label>
+                                    <div className="mt-1">
+                                        <textarea
+                                            id="bio"
+                                            name="bio"
+                                            rows={4}
+                                            className="input-field"
+                                            placeholder="Tell us about yourself, your experience, and what you're looking for."
+                                            value={formData.bio}
+                                            onChange={e => setFormData({ ...formData, bio: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="sm:col-span-6">
+                                    <label htmlFor="skills" className="block text-sm font-medium text-slate-700">
+                                        Skills
+                                    </label>
+                                    <div className="mt-1 relative rounded-md shadow-sm">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <Briefcase className="h-5 w-5 text-slate-400" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="skills"
+                                            id="skills"
+                                            placeholder="e.g. React, Design, Writing (comma separated)"
+                                            value={formData.skills}
+                                            onChange={e => setFormData({ ...formData, skills: e.target.value })}
+                                            className="input-field pl-10"
+                                        />
+                                    </div>
+                                    <p className="mt-2 text-sm text-slate-500">
+                                        Separate skills with commas.
+                                    </p>
+                                </div>
                             </div>
-                            <p className="mt-2 text-sm text-slate-500">
-                                Separate skills with commas.
-                            </p>
                         </div>
                     </div>
 
