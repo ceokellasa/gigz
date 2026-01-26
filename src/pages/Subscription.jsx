@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { initializeCashfree, createPaymentSession, doPayment } from '../lib/cashfree'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { supabase } from '../lib/supabase'
@@ -44,6 +45,10 @@ export default function Subscription() {
 
     const isSubscribed = profile?.subscription_expires_at && new Date(profile.subscription_expires_at) > new Date()
 
+    useEffect(() => {
+        initializeCashfree().catch(err => console.error('Cashfree init error:', err))
+    }, [])
+
     const handleSubscribe = async (plan) => {
         if (!user) {
             toast.warning('Please sign in to subscribe')
@@ -55,28 +60,15 @@ export default function Subscription() {
         setSelectedPlan(plan.id)
 
         try {
-            const now = new Date()
-            const expiresAt = new Date(now.setDate(now.getDate() + plan.duration_days))
+            // 1. Create Payment Session
+            const paymentSessionId = await createPaymentSession(plan, user, profile)
 
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    subscription_plan: plan.id,
-                    subscription_expires_at: expiresAt.toISOString()
-                })
-                .eq('id', user.id)
+            // 2. Open Checkout
+            await doPayment(paymentSessionId)
 
-            if (error) throw error
-
-            await refreshProfile()
-
-            toast.success(`Successfully subscribed to ${plan.name}! Enjoy your premium access.`)
-
-            // Small delay for user to see the success message
-            setTimeout(() => navigate(-1), 1000)
         } catch (error) {
             console.error('Error subscribing:', error)
-            toast.error('Failed to process subscription. Please try again.')
+            toast.error(error.message || 'Failed to process subscription. Please try again.')
         } finally {
             setLoading(false)
             setSelectedPlan(null)

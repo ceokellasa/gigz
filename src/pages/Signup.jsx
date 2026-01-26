@@ -57,6 +57,8 @@ export default function Signup() {
 
         setLoading(true)
         try {
+            const userIdUrl = window.location.origin
+
             const { data, error } = await supabase.auth.signUp({
                 email: formData.email.trim().toLowerCase(),
                 password: formData.password,
@@ -66,6 +68,7 @@ export default function Signup() {
                         phone: formData.phone.trim(),
                         role: formData.role,
                     },
+                    emailRedirectTo: `${userIdUrl}/email-verified`
                 },
             })
 

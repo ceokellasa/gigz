@@ -25,6 +25,7 @@ const SavedGigs = lazy(() => import('./pages/SavedGigs'))
 const ContactUs = lazy(() => import('./pages/ContactUs'))
 const Terms = lazy(() => import('./pages/Terms'))
 const Refunds = lazy(() => import('./pages/Refunds'))
+const EmailVerified = lazy(() => import('./pages/EmailVerified'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
                     <Route path="terms" element={<Terms />} />
                     <Route path="refunds" element={<Refunds />} />
                     <Route path="admin" element={<AdminDashboard />} />
+                    <Route path="email-verified" element={<EmailVerified />} />
                     {/* 404 Page */}
                     <Route path="*" element={<NotFound />} />
                   </Route>
