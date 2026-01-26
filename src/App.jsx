@@ -6,6 +6,7 @@ import { ToastProvider } from './components/Toast'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Layout from './components/Layout'
 import { PageLoadingSkeleton } from './components/Skeleton'
+import TestMaps from './pages/TestMaps'
 
 // Lazy load pages for better performance
 const Home = lazy(() => import('./pages/Home'))
@@ -39,6 +40,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
+                    <Route path="test-maps" element={<TestMaps />} />
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<Signup />} />
                     <Route path="forgot-password" element={<ForgotPassword />} />

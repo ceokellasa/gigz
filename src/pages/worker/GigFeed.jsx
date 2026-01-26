@@ -108,9 +108,43 @@ export default function GigFeed() {
         }
     }
 
-    // ... fetchSavedGigs ...
+    const fetchSavedGigs = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('saved_gigs')
+                .select('gig_id')
+                .eq('user_id', user.id)
 
-    // ... toggleSaveGig ...
+            if (error) throw error
+            setSavedGigs(data.map(s => s.gig_id))
+        } catch (error) {
+            console.error('Error fetching saved gigs:', error)
+        }
+    }
+
+    const toggleSaveGig = async (gigId) => {
+        if (!user) return
+
+        const isSaved = savedGigs.includes(gigId)
+
+        try {
+            if (isSaved) {
+                await supabase
+                    .from('saved_gigs')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('gig_id', gigId)
+                setSavedGigs(savedGigs.filter(id => id !== gigId))
+            } else {
+                await supabase
+                    .from('saved_gigs')
+                    .insert({ user_id: user.id, gig_id: gigId })
+                setSavedGigs([...savedGigs, gigId])
+            }
+        } catch (error) {
+            console.error('Error toggling save:', error)
+        }
+    }
 
     const filteredGigs = gigs.filter((gig) => {
         // If searching nearby, we already filtered by location/status in RPC
@@ -128,8 +162,21 @@ export default function GigFeed() {
         const matchesBudgetType = filters.budgetType === 'all' ||
             (gig.budget_type || 'fixed') === filters.budgetType
 
-        const matchesMinBudget = filters.minBudget === '' || gig.budget >= parseFloat(filters.minBudget)
-        const matchesMaxBudget = filters.maxBudget === '' || gig.budget <= parseFloat(filters.maxBudget)
+        // Helper to parse budget
+        const getBudgetAmount = (val) => {
+            if (typeof val === 'number') return val
+            if (!val) return 0
+            if (val.toString().includes('-')) {
+                const part = val.split('-')[0].trim()
+                return parseFloat(part) || 0
+            }
+            const parsed = parseFloat(val)
+            return isNaN(parsed) ? 0 : parsed
+        }
+        const gigBudget = getBudgetAmount(gig.budget)
+
+        const matchesMinBudget = filters.minBudget === '' || gigBudget >= parseFloat(filters.minBudget)
+        const matchesMaxBudget = filters.maxBudget === '' || gigBudget <= parseFloat(filters.maxBudget)
 
         const matchesRemote = !filters.remoteOnly || gig.is_remote
 
