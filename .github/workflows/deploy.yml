@@ -32,7 +32,7 @@ jobs:
           VITE_CASHFREE_MODE: 'production'
           VITE_SITE_URL: 'https://kellasa.online'
 
-      - name: 📂 Sync files (Try domain folder)
+      - name: 📂 Sync files (Standard Root)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -41,7 +41,7 @@ jobs:
           protocol: ftp 
           port: 21 
           local-dir: ./dist/
-          server-dir: ./domains/kellasa.online/public_html/ # TRYING SPECIFIC PATH
+          server-dir: ./ # BACK TO BASIC ROOT
           exclude: |
             **/.git*
             **/.git*/**
