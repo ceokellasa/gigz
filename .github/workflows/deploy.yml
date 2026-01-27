@@ -32,16 +32,16 @@ jobs:
           VITE_CASHFREE_MODE: 'production'
           VITE_SITE_URL: 'https://kellasa.online'
 
-      - name: 📂 Sync files (Upload to Hostinger)
+      - name: 📂 Sync files (Try domain folder)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
+          protocol: ftp 
           port: 21 
           local-dir: ./dist/
-          server-dir: ./public_html/
+          server-dir: ./domains/kellasa.online/public_html/ # TRYING SPECIFIC PATH
           exclude: |
             **/.git*
             **/.git*/**
