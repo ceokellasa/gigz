@@ -30,7 +30,7 @@ jobs:
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
           VITE_CASHFREE_APP_ID: ${{ secrets.VITE_CASHFREE_APP_ID }}
           VITE_CASHFREE_MODE: 'production'
-          VITE_SITE_URL: 'https://kellasa.online' # Using your domain directly
+          VITE_SITE_URL: 'https://kellasa.online'
 
       - name: 📂 Sync files (Upload to Hostinger)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -38,7 +38,11 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp 
+          protocol: ftp
           port: 21 
           local-dir: ./dist/
           server-dir: ./public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
