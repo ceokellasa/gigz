@@ -3,7 +3,7 @@ name: Deploy to Hostinger
 on:
   push:
     branches:
-      - main  # Set this to your default branch name
+      - main
 
 jobs:
   web-deploy:
@@ -17,14 +17,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+      
       - name: 🔨 Install Dependencies
         run: npm ci
 
       - name: 🏗️ Build Project
         run: npm run build
         env:
-          CI: false # Ensures build doesn't fail on minor warnings
+          CI: false
 
       - name: 📂 Sync files (Upload to Hostinger)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -32,5 +32,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp 
+          port: 21 
           local-dir: ./dist/
-          server-dir: ./public_html/ # Default for Hostinger. Change if using a subdomain like ./subdomain/
+          server-dir: ./public_html/
