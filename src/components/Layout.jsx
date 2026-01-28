@@ -219,36 +219,36 @@ export default function Layout() {
             </footer>
 
             {/* Mobile Bottom Navigation - Floating Capsule Style */}
-            <div className="md:hidden fixed bottom-4 left-0 right-0 z-50 flex justify-center pb-safe pointer-events-none">
-                <div className="bg-white/80 backdrop-blur-md border border-white/30 shadow-xl shadow-slate-200/40 rounded-full px-5 py-2 flex justify-between items-center w-[85%] max-w-[320px] pointer-events-auto ring-1 ring-white/50">
-                    <Link to="/" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+            <div className="md:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center pb-safe pointer-events-none">
+                <div className="bg-white/80 backdrop-blur-md border border-white/30 shadow-xl shadow-slate-200/40 rounded-full px-6 py-3.5 flex justify-between items-center w-[90%] max-w-[380px] pointer-events-auto ring-1 ring-white/50">
+                    <Link to="/" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                     </Link>
 
-                    <Link to="/gigs" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1">
-                        <Briefcase className="h-5 w-5" />
+                    <Link to="/gigs" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
+                        <Briefcase className="h-6 w-6" />
                     </Link>
 
-                    <Link to="/post-gig" className="relative -top-6 transition-transform hover:scale-110 active:scale-95">
-                        <div className="bg-gradient-to-tr from-indigo-600 to-purple-600 p-3 rounded-full shadow-lg shadow-indigo-500/40 text-white ring-4 ring-white/80">
-                            <PlusCircle className="h-6 w-6" />
+                    <Link to="/post-gig" className="relative -top-7 transition-transform hover:scale-110 active:scale-95">
+                        <div className="bg-gradient-to-tr from-indigo-600 to-purple-600 p-4 rounded-full shadow-lg shadow-indigo-500/40 text-white ring-4 ring-white/80">
+                            <PlusCircle className="h-7 w-7" />
                         </div>
                     </Link>
 
-                    <Link to="/messages" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative p-1">
-                        <MessageSquare className="h-5 w-5" />
+                    <Link to="/messages" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative p-1.5">
+                        <MessageSquare className="h-6 w-6" />
                         {unreadCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-3.5 w-3.5 rounded-full flex items-center justify-center shadow-sm ring-2 ring-white">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-sm ring-2 ring-white">
                                 {unreadCount > 9 ? '9+' : unreadCount}
                             </span>
                         )}
                     </Link>
 
-                    <Link to="/profile" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1">
+                    <Link to="/profile" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
                         {profile?.avatar_url ? (
-                            <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover ring-2 ring-slate-100" />
+                            <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover ring-2 ring-slate-100" />
                         ) : (
-                            <User className="h-5 w-5" />
+                            <User className="h-6 w-6" />
                         )}
                     </Link>
                 </div>
