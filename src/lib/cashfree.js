@@ -1,4 +1,5 @@
 import { load } from '@cashfreepayments/cashfree-js'
+import { supabase } from './supabase'
 
 let cashfree
 
@@ -10,11 +11,15 @@ export const initializeCashfree = async () => {
 
 export const createPaymentSession = async (plan, user, profile) => {
     try {
-        // Call Supabase Edge Function
+        // Get the current session token
+        const { data: { session } } = await supabase.auth.getSession()
+
+        // Call Supabase Edge Function with authentication
         const response = await fetch('https://rhqzywqsfjzjzbfqlyqf.supabase.co/functions/v1/create-cashfree-order', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
             },
             body: JSON.stringify({
                 plan_id: plan.id,
