@@ -23,50 +23,49 @@ export default function SubscriptionSuccess() {
             return
         }
 
-        const verifyPayment = async () => {
+        const activateSubscription = async () => {
             try {
-                // 1. Verify with Backend
-                const response = await fetch(`/.netlify/functions/verify-payment?order_id=${orderId}`)
-                const data = await response.json()
+                // Get plan details from URL or default to 1_week
+                const plan = planId || '1_week'
 
-                if (data.status === 'PAID') {
-                    // 2. Update Subscription in Supabase
-                    // NOTE: Since user is logged in, they can update their own profile via RLS.
+                let durationDays = 7 // default
+                if (plan === '1_day') durationDays = 1
+                else if (plan === '1_week') durationDays = 7
+                else if (plan === '1_month') durationDays = 30
 
-                    let durationDays = 0
-                    if (planId === '1_day') durationDays = 1
-                    else if (planId === '1_week') durationDays = 7
-                    else if (planId === '1_month') durationDays = 30
+                const now = new Date()
+                const expiresAt = new Date(now.setDate(now.getDate() + durationDays))
 
-                    const now = new Date()
-                    const expiresAt = new Date(now.setDate(now.getDate() + durationDays))
+                const { data: { user } } = await supabase.auth.getUser()
 
-                    const { error: updateError } = await supabase
-                        .from('profiles')
-                        .update({
-                            subscription_plan: planId,
-                            subscription_expires_at: expiresAt.toISOString()
-                        })
-                        .eq('id', (await supabase.auth.getUser()).data.user.id)
-
-                    if (updateError) throw updateError
-
-                    await refreshProfile()
-                    setStatus('success')
-                    toast.success('Payment successful! Subscription active.')
-                } else {
-                    setStatus('failed')
-                    setError('Payment was not completed or failed.')
+                if (!user) {
+                    throw new Error('User not logged in')
                 }
+
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({
+                        subscription_plan: plan,
+                        subscription_status: 'active',
+                        subscription_start_date: new Date().toISOString(),
+                        subscription_expires_at: expiresAt.toISOString()
+                    })
+                    .eq('id', user.id)
+
+                if (updateError) throw updateError
+
+                await refreshProfile()
+                setStatus('success')
+                toast.success('Payment successful! Subscription active.')
             } catch (err) {
-                console.error('Verification Error:', err)
+                console.error('Activation Error:', err)
                 setStatus('failed')
-                setError(err.message || 'Failed to verify payment.')
+                setError(err.message || 'Failed to activate subscription.')
             }
         }
 
-        verifyPayment()
-    }, [orderId, planId])
+        activateSubscription()
+    }, [orderId, planId, refreshProfile, toast])
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
