@@ -13,7 +13,7 @@ const plans = [
         name: '1 Day Pass',
         price: 49,
         duration_days: 1,
-        features: ['Access to all contact numbers', 'Unlimited job views', 'Direct messaging'],
+        features: ['5 number reveals', 'Unlimited job views', 'Direct messaging'],
         popular: false
     },
     {
@@ -21,7 +21,7 @@ const plans = [
         name: 'Weekly Pro',
         price: 270,
         duration_days: 7,
-        features: ['Access to all contact numbers', 'Unlimited job views', 'Direct messaging', 'Priority support'],
+        features: ['50 number reveals', 'Unlimited job views', 'Direct messaging', 'Priority support'],
         popular: true
     },
     {
@@ -29,7 +29,7 @@ const plans = [
         name: 'Monthly Elite',
         price: 1000,
         duration_days: 30,
-        features: ['Access to all contact numbers', 'Unlimited job views', 'Direct messaging', 'Priority support', 'Featured profile'],
+        features: ['Unlimited reveals', 'Unlimited job views', 'Direct messaging', 'Priority support', 'Featured profile'],
         popular: false
     }
 ]

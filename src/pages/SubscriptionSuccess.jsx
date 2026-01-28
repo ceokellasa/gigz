@@ -42,13 +42,21 @@ export default function SubscriptionSuccess() {
                     throw new Error('User not logged in')
                 }
 
+                // Calculate reveals based on plan
+                let reveals = 50 // default for 1_week
+                if (plan === '1_day') reveals = 5
+                else if (plan === '1_week') reveals = 50
+                else if (plan === '1_month') reveals = 999999 // unlimited
+
                 const { error: updateError } = await supabase
                     .from('profiles')
                     .update({
                         subscription_plan: plan,
                         subscription_status: 'active',
                         subscription_start_date: new Date().toISOString(),
-                        subscription_expires_at: expiresAt.toISOString()
+                        subscription_expires_at: expiresAt.toISOString(),
+                        reveals_remaining: reveals,
+                        reveals_used: 0
                     })
                     .eq('id', user.id)
 

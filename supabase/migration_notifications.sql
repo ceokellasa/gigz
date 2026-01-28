@@ -1,6 +1,3 @@
--- Enable realtime for messages table
-alter publication supabase_realtime add table messages;
-
 -- Create notifications table
 create table if not exists notifications (
     id uuid primary key default uuid_generate_v4(),
