@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kellasa</string>
+    <string name="title_activity_main">Kellasa</string>
+    <string name="package_name">com.kellasa.gigs</string>
+    <string name="custom_url_scheme">com.kellasa.gigs</string>
+</resources>

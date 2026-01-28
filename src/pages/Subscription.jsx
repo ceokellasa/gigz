@@ -229,7 +229,7 @@ export default function Subscription() {
             <div className="mt-8 text-center">
                 <div className="inline-flex items-center gap-2 text-slate-500 bg-white px-6 py-3 rounded-full text-sm border border-slate-200 shadow-sm">
                     <Shield className="h-5 w-5 text-green-500" />
-                    Secure Payment via MockPay
+                    Secure Payment via Cashfree
                 </div>
             </div>
         </div>

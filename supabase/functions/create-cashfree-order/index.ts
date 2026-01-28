@@ -13,15 +13,18 @@ serve(async (req) => {
     try {
         const { plan_id, user_id, user_phone, user_email, user_name, price } = await req.json()
 
-        // Validate input
         if (!plan_id || !user_id || !price) {
             throw new Error('Missing required fields')
         }
 
         const APP_ID = Deno.env.get('CASHFREE_APP_ID')
         const SECRET_KEY = Deno.env.get('CASHFREE_SECRET_KEY')
-        const API_VERSION = '2022-09-01'
-        const URL = 'https://api.cashfree.com/pg/orders' // Production URL
+        const API_VERSION = '2023-08-01'
+        const URL = 'https://api.cashfree.com/pg/orders'
+
+        if (!APP_ID || !SECRET_KEY) {
+            throw new Error('Cashfree credentials not configured')
+        }
 
         const orderId = `order_${user_id.split('-')[0]}_${Date.now()}`
 
@@ -36,13 +39,10 @@ serve(async (req) => {
                 customer_name: user_name || 'User'
             },
             order_meta: {
-                return_url: `${req.headers.get('origin')}/subscription/success?order_id={order_id}`,
-                notify_url: `${req.headers.get('origin')}/api/webhooks/cashfree`
+                return_url: `${req.headers.get('origin')}/subscription/success?order_id={order_id}&plan_id=${plan_id}`
             },
             order_note: `Subscription for ${plan_id}`
         }
-
-        console.log('Creating order with payload:', JSON.stringify(payload));
 
         const response = await fetch(URL, {
             method: 'POST',
@@ -59,7 +59,7 @@ serve(async (req) => {
 
         if (!response.ok) {
             console.error('Cashfree API Error:', data);
-            throw new Error(data.message || 'Failed to create order')
+            throw new Error(data.message || 'Payment gateway error')
         }
 
         return new Response(
@@ -67,7 +67,7 @@ serve(async (req) => {
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
     } catch (error) {
-        console.error('Error:', error.message)
+        console.error('Payment Error:', error.message)
         return new Response(
             JSON.stringify({ error: error.message }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
