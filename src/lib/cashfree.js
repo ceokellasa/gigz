@@ -1,5 +1,4 @@
 import { load } from '@cashfreepayments/cashfree-js'
-import { supabase } from './supabase'
 
 let cashfree
 
@@ -11,10 +10,12 @@ export const initializeCashfree = async () => {
 
 export const createPaymentSession = async (plan, user, profile) => {
     try {
-        // Call Netlify Function
-        const response = await fetch('/.netlify/functions/create-cashfree-order', {
+        // Call Supabase Edge Function
+        const response = await fetch('https://rhqzywqsfjzjzbfqlyqf.supabase.co/functions/v1/create-cashfree-order', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 plan_id: plan.id,
                 price: plan.price,
@@ -44,7 +45,7 @@ export const doPayment = async (paymentSessionId) => {
 
     return cashfree.checkout({
         paymentSessionId,
-        redirectTarget: '_self', // or '_blank'
+        redirectTarget: '_self',
         returnUrl: `${window.location.origin}/subscription/success?order_id={order_id}`
     })
 }
