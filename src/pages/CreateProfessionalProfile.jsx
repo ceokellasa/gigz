@@ -77,41 +77,7 @@ export default function CreateProfessionalProfile() {
     // KYC Blocking Check
     // We check if the user is verified. If not, we return a blocking UI.
 
-    if (authLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            </div>
-        )
-    }
 
-    if (!profile || profile.kyc_status !== 'verified') {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
-                <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center border border-slate-200">
-                    <div className="h-16 w-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Upload className="h-8 w-8" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Identity Verification Required</h2>
-                    <p className="text-slate-600 mb-6">
-                        To maintain a trusted environment, all professionals must verify their identity before creating a profile.
-                    </p>
-                    <button
-                        onClick={() => window.open('https://forms.gle/placeholder', '_blank')}
-                        className="w-full btn-primary py-3 flex items-center justify-center gap-2"
-                    >
-                        Complete Verification
-                    </button>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="mt-4 text-slate-500 hover:text-slate-700 text-sm font-medium"
-                    >
-                        Back to Home
-                    </button>
-                </div>
-            </div>
-        )
-    }
 
     const fetchExistingProfile = async () => {
         try {
@@ -255,6 +221,42 @@ export default function CreateProfessionalProfile() {
             ...prev,
             previous_works: prev.previous_works.filter((_, i) => i !== index)
         }))
+    }
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        )
+    }
+
+    if (!profile || profile.kyc_status !== 'verified') {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
+                <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center border border-slate-200">
+                    <div className="h-16 w-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Upload className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Identity Verification Required</h2>
+                    <p className="text-slate-600 mb-6">
+                        To maintain a trusted environment, all professionals must verify their identity before creating a profile.
+                    </p>
+                    <button
+                        onClick={() => navigate('/profile')}
+                        className="w-full btn-primary py-3 flex items-center justify-center gap-2"
+                    >
+                        Go to Verification Settings
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-4 text-slate-500 hover:text-slate-700 text-sm font-medium"
+                    >
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+        )
     }
 
     return (
