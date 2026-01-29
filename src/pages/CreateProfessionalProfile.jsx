@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { Save, Plus, X, Upload } from 'lucide-react'
 
 export default function CreateProfessionalProfile() {
-    const { user } = useAuth()
+    const { user, profile } = useAuth()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [existingProfile, setExistingProfile] = useState(null)
@@ -73,6 +73,37 @@ export default function CreateProfessionalProfile() {
             fetchExistingProfile()
         }
     }, [user])
+
+    // KYC Blocking Check
+    // We check if the user is verified. If not, we return a blocking UI.
+    // Note: This assumes 'kyc_status' field exists on profile.
+    if (profile && profile.kyc_status !== 'verified') {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
+                <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center border border-slate-200">
+                    <div className="h-16 w-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Upload className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Identity Verification Required</h2>
+                    <p className="text-slate-600 mb-6">
+                        To maintain a trusted environment, all professionals must verify their identity before creating a profile.
+                    </p>
+                    <button
+                        onClick={() => window.open('https://forms.gle/placeholder', '_blank')}
+                        className="w-full btn-primary py-3 flex items-center justify-center gap-2"
+                    >
+                        Complete Verification
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-4 text-slate-500 hover:text-slate-700 text-sm font-medium"
+                    >
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
     const fetchExistingProfile = async () => {
         try {

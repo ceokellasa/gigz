@@ -226,13 +226,13 @@ export default function ProfessionalDetails() {
                 {/* Right Column (Portfolio, Certifications) */}
                 <div className="lg:col-span-2 space-y-8">
                     {/* Previous Works / Portfolio */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                            <ImageIcon className="h-6 w-6 text-indigo-600" />
-                            Portfolio & Previous Work
-                        </h3>
+                    {profile.previous_works && profile.previous_works.length > 0 && (
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <ImageIcon className="h-6 w-6 text-indigo-600" />
+                                Portfolio & Previous Work
+                            </h3>
 
-                        {profile.previous_works && profile.previous_works.length > 0 ? (
                             <div className="space-y-8">
                                 {profile.previous_works.map((work, index) => (
                                     <div key={index} className="relative pl-6 border-l-2 border-slate-100 last:border-0 pb-8 last:pb-0">
@@ -250,21 +250,17 @@ export default function ProfessionalDetails() {
                                     </div>
                                 ))}
                             </div>
-                        ) : (
-                            <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                                No portfolio items added yet.
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
 
                     {/* Certifications */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                            <Award className="h-6 w-6 text-indigo-600" />
-                            Certifications
-                        </h3>
+                    {profile.certifications && profile.certifications.length > 0 && (
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <Award className="h-6 w-6 text-indigo-600" />
+                                Certifications
+                            </h3>
 
-                        {profile.certifications && profile.certifications.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {profile.certifications.map((cert, index) => (
                                     <div key={index} className="flex gap-4 p-4 rounded-lg bg-slate-50 border border-slate-100">
@@ -287,12 +283,8 @@ export default function ProfessionalDetails() {
                                     </div>
                                 ))}
                             </div>
-                        ) : (
-                            <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                                No certifications listed.
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
