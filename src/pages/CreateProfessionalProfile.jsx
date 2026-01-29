@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { Save, Plus, X, Upload } from 'lucide-react'
+import { Save, Plus, X, Upload, Trash2 } from 'lucide-react'
 
 export default function CreateProfessionalProfile() {
     const { user, profile, loading: authLoading } = useAuth()
@@ -110,6 +110,29 @@ export default function CreateProfessionalProfile() {
             }
         } catch (error) {
             console.error('Error fetching profile:', error)
+        }
+    }
+
+    const handleDelete = async () => {
+        if (!existingProfile) return
+        if (!window.confirm('Are you sure you want to delete your professional profile? This action cannot be undone.')) return
+
+        setLoading(true)
+        try {
+            const { error } = await supabase
+                .from('professional_profiles')
+                .delete()
+                .eq('user_id', user.id)
+
+            if (error) throw error
+
+            alert('Professional profile deleted.')
+            navigate('/profile')
+        } catch (error) {
+            console.error('Error deleting profile:', error)
+            alert('Failed to delete profile')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -677,6 +700,18 @@ export default function CreateProfessionalProfile() {
                         Cancel
                     </button>
                 </div>
+                {existingProfile && (
+                    <div className="flex justify-center border-t border-slate-200 pt-6">
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            className="flex items-center gap-2 px-6 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                        >
+                            <Trash2 className="h-5 w-5" />
+                            Delete Professional Profile
+                        </button>
+                    </div>
+                )}
             </form>
         </div>
     )
