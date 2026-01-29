@@ -419,7 +419,7 @@ export default function CreateProfessionalProfile() {
                 </div>
 
                 {/* Submit */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 pb-24 md:pb-0">
                     <button
                         type="submit"
                         disabled={loading}

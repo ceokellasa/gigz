@@ -30,6 +30,7 @@ const EmailVerified = lazy(() => import('./pages/EmailVerified'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const Professionals = lazy(() => import('./pages/Professionals'))
 const CreateProfessionalProfile = lazy(() => import('./pages/CreateProfessionalProfile'))
+const ProfessionalDetails = lazy(() => import('./pages/ProfessionalDetails'))
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
                     <Route path="email-verified" element={<EmailVerified />} />
                     <Route path="professionals" element={<Professionals />} />
                     <Route path="professionals/create" element={<CreateProfessionalProfile />} />
+                    <Route path="professionals/:id" element={<ProfessionalDetails />} />
                     {/* 404 Page */}
                     <Route path="*" element={<NotFound />} />
                   </Route>

@@ -1,7 +1,10 @@
+-- Drop table if exists to allow clean reset
+drop table if exists professional_profiles cascade;
+
 -- Create professional_profiles table
 create table if not exists professional_profiles (
     id uuid primary key default gen_random_uuid(),
-    user_id uuid references auth.users(id) on delete cascade not null unique,
+    user_id uuid references public.profiles(id) on delete cascade not null unique,
     
     -- Basic Info
     profession varchar(100) not null,
