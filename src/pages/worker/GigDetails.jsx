@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { DollarSign, Clock, Calendar, User, MessageSquare, CheckCircle, MapPin, Globe, Briefcase, Phone, Lock, AlertCircle } from 'lucide-react'
+import { DollarSign, Clock, Calendar, User, MessageSquare, CheckCircle, MapPin, Globe, Briefcase, AlertCircle } from 'lucide-react'
 import Chat from '../../components/Chat'
 import { CategoryIcon } from '../../components/CategoryIcon'
 
@@ -16,7 +16,6 @@ export default function GigDetails() {
     const [coverLetter, setCoverLetter] = useState('')
     const [hasApplied, setHasApplied] = useState(false)
     const [showChat, setShowChat] = useState(false)
-    const [contactNumber, setContactNumber] = useState(null)
 
     const isSubscribed = profile?.subscription_expires_at && new Date(profile.subscription_expires_at) > new Date()
 
@@ -24,13 +23,6 @@ export default function GigDetails() {
         fetchGigDetails()
         incrementViewCount()
     }, [id])
-
-    // Refetch contact info when profile changes (e.g., after subscription)
-    useEffect(() => {
-        if (user && gig) {
-            fetchContactInfo()
-        }
-    }, [user, profile, gig])
 
     const incrementViewCount = async () => {
         try {
@@ -54,32 +46,6 @@ export default function GigDetails() {
             console.error('Error fetching gig details:', error)
         } finally {
             setLoading(false)
-        }
-    }
-
-    const fetchContactInfo = async () => {
-        // Check if user is subscribed (client-side check)
-        const userIsSubscribed = profile?.subscription_expires_at &&
-            new Date(profile.subscription_expires_at) > new Date()
-
-        // If subscribed or is the gig owner, show the contact number
-        if (userIsSubscribed || gig?.client_id === user?.id) {
-            // Fetch mobile number directly from gig
-            try {
-                const { data, error } = await supabase
-                    .from('gigs')
-                    .select('mobile_number')
-                    .eq('id', id)
-                    .single()
-
-                if (data?.mobile_number) {
-                    setContactNumber(data.mobile_number)
-                }
-            } catch (error) {
-                console.error('Error fetching contact info:', error)
-            }
-        } else {
-            setContactNumber(null)
         }
     }
 
@@ -207,26 +173,7 @@ export default function GigDetails() {
                         </div>
                     </div>
 
-                    {/* Contact Info Box */}
-                    <div className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Client Contact</h3>
-                        {contactNumber ? (
-                            <div className="flex items-center gap-3 text-green-700 bg-green-50 p-3 rounded-lg border border-green-100">
-                                <Phone className="h-5 w-5" />
-                                <span className="font-bold text-lg">{contactNumber}</span>
-                            </div>
-                        ) : (
-                            <div className="text-center">
-                                <div className="flex items-center justify-center gap-2 text-slate-400 mb-2">
-                                    <Lock className="h-5 w-5" />
-                                    <span className="font-medium">Number Locked</span>
-                                </div>
-                                <Link to="/subscription" className="btn-primary w-full text-sm py-2 inline-block">
-                                    Unlock for ₹49
-                                </Link>
-                            </div>
-                        )}
-                    </div>
+
 
                     <div className="border-t border-slate-200 my-8 pt-8">
                         <h3 className="text-lg font-semibold text-slate-900 mb-4">Description</h3>
