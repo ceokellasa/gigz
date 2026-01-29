@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import { Search, MapPin, Briefcase, Globe, Heart, SlidersHorizontal, X, Clock, IndianRupee, Phone, Lock, Shield, Eye } from 'lucide-react'
+import { Search, MapPin, Briefcase, Globe, Heart, SlidersHorizontal, X, Clock, IndianRupee, Phone, Lock, Shield } from 'lucide-react'
 import { CategoryIcon } from '../../components/CategoryIcon'
 import clsx from 'clsx'
 
@@ -30,8 +30,6 @@ export default function GigFeed() {
         nearMe: false
     })
     const [userLoc, setUserLoc] = useState(null)
-    const [revealedNumbers, setRevealedNumbers] = useState(new Set())
-    const [revealing, setRevealing] = useState(null)
 
     useEffect(() => {
         fetchGigs()
@@ -147,47 +145,6 @@ export default function GigFeed() {
             console.error('Error toggling save:', error)
         }
     }
-
-    const revealNumber = async (gigId) => {
-        if (!user || !profile) return
-
-        // Check if already revealed
-        if (revealedNumbers.has(gigId)) return
-
-        // Check if user has reveals remaining
-        if (!profile.reveals_remaining || profile.reveals_remaining <= 0) {
-            alert('You have no reveals remaining. Please upgrade your subscription.')
-            return
-        }
-
-        setRevealing(gigId)
-
-        try {
-            // Decrement reveals_remaining
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    reveals_remaining: profile.reveals_remaining - 1,
-                    reveals_used: (profile.reveals_used || 0) + 1
-                })
-                .eq('id', user.id)
-
-            if (error) throw error
-
-            // Add to revealed set
-            setRevealedNumbers(new Set([...revealedNumbers, gigId]))
-
-            // Refresh profile to update reveals count
-            const { refreshProfile } = useAuth()
-            await refreshProfile()
-        } catch (error) {
-            console.error('Error revealing number:', error)
-            alert('Failed to reveal number. Please try again.')
-        } finally {
-            setRevealing(null)
-        }
-    }
-
 
     const filteredGigs = gigs.filter((gig) => {
         // If searching nearby, we already filtered by location/status in RPC
@@ -492,45 +449,6 @@ export default function GigFeed() {
                                     <p className="text-slate-600 text-sm line-clamp-2 mb-4 flex-1">
                                         {gig.description}
                                     </p>
-
-                                    {/* Contact Number - Reveal System */}
-                                    {gig.mobile_number && (
-                                        <div className="mb-4">
-                                            {isSubscribed ? (
-                                                revealedNumbers.has(gig.id) ? (
-                                                    <a
-                                                        href={`tel:${gig.mobile_number}`}
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors border border-green-100"
-                                                    >
-                                                        <Phone className="h-4 w-4" />
-                                                        {gig.mobile_number}
-                                                    </a>
-                                                ) : (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            revealNumber(gig.id)
-                                                        }}
-                                                        disabled={revealing === gig.id || !profile?.reveals_remaining}
-                                                        className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors border border-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed w-full justify-center"
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                        {revealing === gig.id ? 'Revealing...' : `Reveal Number (${profile?.reveals_remaining || 0} left)`}
-                                                    </button>
-                                                )
-                                            ) : (
-                                                <Link
-                                                    to="/subscription"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="flex items-center gap-2 bg-slate-50 text-slate-400 px-3 py-2 rounded-lg text-sm border border-slate-100 hover:bg-slate-100 transition-colors"
-                                                >
-                                                    <Lock className="h-4 w-4" />
-                                                    <span>Subscribe to reveal numbers</span>
-                                                </Link>
-                                            )}
-                                        </div>
-                                    )}
 
                                     <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                                         <div className="flex items-center">

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { DollarSign, Clock, Calendar, User, MessageSquare, CheckCircle, MapPin, Globe, Briefcase, AlertCircle } from 'lucide-react'
+import { DollarSign, Clock, Calendar, User, MessageSquare, CheckCircle, MapPin, Globe, Briefcase, AlertCircle, Phone, Lock, Eye } from 'lucide-react'
 import Chat from '../../components/Chat'
 import { CategoryIcon } from '../../components/CategoryIcon'
 
 export default function GigDetails() {
     const { id } = useParams()
-    const { user, profile } = useAuth()
+    const { user, profile, refreshProfile } = useAuth()
     const navigate = useNavigate()
     const [gig, setGig] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -16,6 +16,9 @@ export default function GigDetails() {
     const [coverLetter, setCoverLetter] = useState('')
     const [hasApplied, setHasApplied] = useState(false)
     const [showChat, setShowChat] = useState(false)
+    const [contactNumber, setContactNumber] = useState(null)
+    const [numberRevealed, setNumberRevealed] = useState(false)
+    const [revealing, setRevealing] = useState(false)
 
     const isSubscribed = profile?.subscription_expires_at && new Date(profile.subscription_expires_at) > new Date()
 
@@ -48,6 +51,55 @@ export default function GigDetails() {
             setLoading(false)
         }
     }
+
+    const revealNumber = async () => {
+        if (!user || !profile || !isSubscribed) return
+
+        // Check if user has reveals remaining
+        if (!profile.reveals_remaining || profile.reveals_remaining <= 0) {
+            alert('You have no reveals remaining. Please upgrade your subscription.')
+            return
+        }
+
+        setRevealing(true)
+
+        try {
+            // Decrement reveals_remaining
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({
+                    reveals_remaining: profile.reveals_remaining - 1,
+                    reveals_used: (profile.reveals_used || 0) + 1
+                })
+                .eq('id', user.id)
+
+            if (updateError) throw updateError
+
+            // Fetch the actual number
+            const { data, error } = await supabase
+                .from('gigs')
+                .select('mobile_number')
+                .eq('id', id)
+                .single()
+
+            if (error) throw error
+
+            if (data?.mobile_number) {
+                setContactNumber(data.mobile_number)
+                setNumberRevealed(true)
+            }
+
+
+            // Refresh profile to update reveals count
+            await refreshProfile()
+        } catch (error) {
+            console.error('Error revealing number:', error)
+            alert(`Failed to reveal number: ${error.message || 'Please try again.'}`)
+        } finally {
+            setRevealing(false)
+        }
+    }
+
 
     const checkApplicationStatus = async () => {
         const { data } = await supabase
@@ -173,6 +225,40 @@ export default function GigDetails() {
                         </div>
                     </div>
 
+                    {/* Contact Info Box - Reveal Number */}
+                    <div className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Client Contact</h3>
+                        {isSubscribed ? (
+                            numberRevealed && contactNumber ? (
+                                <a
+                                    href={`tel:${contactNumber}`}
+                                    className="flex items-center gap-3 text-green-700 bg-green-50 p-3 rounded-lg border border-green-100 hover:bg-green-100 transition-colors"
+                                >
+                                    <Phone className="h-5 w-5" />
+                                    <span className="font-bold text-lg">{contactNumber}</span>
+                                </a>
+                            ) : (
+                                <button
+                                    onClick={revealNumber}
+                                    disabled={revealing || !profile?.reveals_remaining}
+                                    className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                                >
+                                    <Eye className="h-5 w-5" />
+                                    {revealing ? 'Revealing...' : `Reveal Number (${profile?.reveals_remaining || 0} left)`}
+                                </button>
+                            )
+                        ) : (
+                            <div className="text-center">
+                                <div className="flex items-center justify-center gap-2 text-slate-400 mb-2">
+                                    <Lock className="h-5 w-5" />
+                                    <span className="font-medium">Number Locked</span>
+                                </div>
+                                <Link to="/subscription" className="btn-primary w-full text-sm py-2 inline-block">
+                                    Subscribe to Reveal
+                                </Link>
+                            </div>
+                        )}
+                    </div>
 
 
                     <div className="border-t border-slate-200 my-8 pt-8">

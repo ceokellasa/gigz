@@ -3,7 +3,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Menu as MenuIcon, X, User, LogOut, Briefcase, PlusCircle, Search, MessageSquare, ShieldAlert } from 'lucide-react'
+import { Menu as MenuIcon, X, User, LogOut, Briefcase, PlusCircle, Search, MessageSquare, ShieldAlert, Users } from 'lucide-react'
 import clsx from 'clsx'
 
 export default function Layout() {
@@ -29,14 +29,14 @@ export default function Layout() {
     return (
         <div className="min-h-screen font-sans bg-transparent flex flex-col pb-16 md:pb-0">
             <div className="fixed inset-0 -z-10 bg-slate-50"></div>
-            <Disclosure as="nav" className="sticky top-4 z-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full hidden md:block">
+            <Disclosure as="nav" className="sticky top-0 md:top-4 z-50 md:max-w-7xl md:mx-auto md:px-4 sm:px-6 lg:px-8 w-full">
                 {({ open }) => (
-                    <div className="glass-panel rounded-2xl mt-4">
-                        <div className="flex justify-between h-auto py-4 px-4 sm:px-6 lg:px-8">
+                    <div className="bg-white md:glass-panel md:rounded-2xl md:mt-4 border-b md:border-b-0 border-slate-200">
+                        <div className="flex justify-between h-auto py-3 md:py-4 px-4 sm:px-6 lg:px-8">
                             <div className="flex">
                                 <div className="flex-shrink-0 flex items-center">
                                     <Link to="/" className="flex items-center gap-2">
-                                        <span className="font-sans font-black italic text-4xl tracking-tighter text-slate-900 uppercase transform -skew-x-6 py-2">
+                                        <span className="font-sans font-black italic text-2xl md:text-4xl tracking-tighter text-slate-900 uppercase transform -skew-x-6 py-2">
                                             KELLASA
                                         </span>
                                     </Link>
@@ -58,7 +58,7 @@ export default function Layout() {
                                     ))}
                                 </div>
                             </div>
-                            <div className="hidden sm:ml-6 sm:items-center gap-4 flex">
+                            <div className="flex ml-6 items-center gap-4">
                                 {user ? (
                                     <Menu as="div" className="ml-3 relative">
                                         <div>
@@ -188,15 +188,6 @@ export default function Layout() {
                 )}
             </Disclosure>
 
-            {/* Mobile Top Bar (Logo only) */}
-            <div className="md:hidden sticky top-0 z-50 glass-panel px-4 py-3 flex justify-center items-center rounded-b-xl border-t-0">
-                <Link to="/" className="flex items-center gap-2">
-                    <span className="font-sans font-black italic text-3xl tracking-tighter text-slate-900 uppercase transform -skew-x-6">
-                        KELLASA
-                    </span>
-                </Link>
-            </div>
-
             <div className="flex-grow">
                 <main>
                     <Outlet />
@@ -217,6 +208,7 @@ export default function Layout() {
                     </div>
                 </div>
             </footer>
+
 
             {/* Mobile Bottom Navigation - Floating Capsule Style */}
             <div className="md:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center pb-safe pointer-events-none">
@@ -244,12 +236,8 @@ export default function Layout() {
                         )}
                     </Link>
 
-                    <Link to="/profile" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
-                        {profile?.avatar_url ? (
-                            <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover ring-2 ring-slate-100" />
-                        ) : (
-                            <User className="h-6 w-6" />
-                        )}
+                    <Link to="/professionals" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
+                        <Users className="h-6 w-6" />
                     </Link>
                 </div>
             </div>
