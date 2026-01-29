@@ -7,8 +7,9 @@ alter table notifications add column if not exists is_global boolean default fal
 -- Add sender_id (system or admin user)
 alter table notifications add column if not exists sender_id uuid references auth.users(id);
 
--- Drop old RLS policy for select
+-- Drop POTENTIALLY EXISTING policies to avoid conflicts
 drop policy if exists "Users can view own notifications" on notifications;
+drop policy if exists "Users can view own and global notifications" on notifications;
 
 -- Create new RLS: View own OR global
 create policy "Users can view own and global notifications"
