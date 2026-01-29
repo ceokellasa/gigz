@@ -18,3 +18,6 @@ using (
   auth.uid() = user_id 
   or is_global = true
 );
+
+-- Fix: Remove restrictive type check that blocks 'system_broadcast'
+alter table notifications drop constraint if exists notifications_type_check;
