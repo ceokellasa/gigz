@@ -7,6 +7,7 @@ import AdminGigList from './AdminGigList'
 import AdminUserList from './AdminUserList'
 import AdminCMS from './AdminCMS'
 import AdminKYCRequests from './AdminKYCRequests'
+import AdminNotifications from './AdminNotifications'
 
 const ADMIN_EMAIL = 'nsjdfmjr@gmail.com'
 
@@ -144,6 +145,15 @@ export default function AdminDashboard() {
                     >
                         KYC Requests
                     </button>
+                    <button
+                        onClick={() => setActiveTab('notifications')}
+                        className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'notifications'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            }`}
+                    >
+                        Push Notifications
+                    </button>
                 </nav>
             </div>
 
@@ -167,6 +177,8 @@ export default function AdminDashboard() {
                 {activeTab === 'gigs' && <AdminGigList />}
 
                 {activeTab === 'cms' && <AdminCMS />}
+
+                {activeTab === 'notifications' && <AdminNotifications />}
             </div>
         </div>
     )

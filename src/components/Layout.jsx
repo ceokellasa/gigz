@@ -5,6 +5,7 @@ import { useSettings } from '../context/SettingsContext'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Menu as MenuIcon, X, User, LogOut, Briefcase, PlusCircle, Search, MessageSquare, ShieldAlert, Users } from 'lucide-react'
 import clsx from 'clsx'
+import BroadcastListener from './BroadcastListener'
 
 export default function Layout() {
     const { user, profile, signOut, unreadCount } = useAuth()
@@ -28,6 +29,7 @@ export default function Layout() {
 
     return (
         <div className="min-h-screen font-sans bg-transparent flex flex-col pb-16 md:pb-0">
+            <BroadcastListener />
             <div className="fixed inset-0 -z-10 bg-slate-50"></div>
             <Disclosure as="nav" className="sticky top-0 md:top-4 z-50 md:max-w-7xl md:mx-auto md:px-4 sm:px-6 lg:px-8 w-full">
                 {({ open }) => (
