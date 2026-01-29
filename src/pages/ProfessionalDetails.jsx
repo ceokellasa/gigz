@@ -25,8 +25,7 @@ export default function ProfessionalDetails() {
                     *,
                     profiles:user_id (
                         full_name,
-                        avatar_url,
-                        email
+                        avatar_url
                     )
                 `)
                 .eq('id', id)
@@ -129,10 +128,6 @@ export default function ProfessionalDetails() {
                                     Call
                                 </a>
                             )}
-                            <a href={`mailto:${profile.profiles?.email}`} className="flex-1 md:flex-none btn-secondary flex items-center justify-center gap-2">
-                                <Mail className="h-4 w-4" />
-                                Message
-                            </a>
                         </div>
                     </div>
 
