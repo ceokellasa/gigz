@@ -265,6 +265,29 @@ export default function Profile() {
                     {/* KYC Verification Section */}
                     <KYCVerification profile={profile} onUpdate={refreshProfile} />
 
+                    {/* Professional Profile Section */}
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-6 text-white mb-8">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <Briefcase className="h-8 w-8 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold">Professional Profile</h2>
+                                    <p className="text-blue-100 mt-1">
+                                        Showcase your skills and get hired for gigs.
+                                    </p>
+                                </div>
+                            </div>
+                            <Link
+                                to="/professionals/create"
+                                className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors shadow-sm whitespace-nowrap"
+                            >
+                                Manage Profile
+                            </Link>
+                        </div>
+                    </div>
+
                     {/* Profile Details Card */}
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="p-6 border-b border-slate-200 bg-slate-50">

@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { Save, Plus, X, Upload } from 'lucide-react'
 
 export default function CreateProfessionalProfile() {
-    const { user, profile } = useAuth()
+    const { user, profile, loading: authLoading } = useAuth()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [existingProfile, setExistingProfile] = useState(null)
@@ -76,8 +76,16 @@ export default function CreateProfessionalProfile() {
 
     // KYC Blocking Check
     // We check if the user is verified. If not, we return a blocking UI.
-    // Note: This assumes 'kyc_status' field exists on profile.
-    if (profile && profile.kyc_status !== 'verified') {
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        )
+    }
+
+    if (!profile || profile.kyc_status !== 'verified') {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
                 <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center border border-slate-200">
