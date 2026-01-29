@@ -32,6 +32,35 @@ export default function CreateProfessionalProfile() {
     const [newSkill, setNewSkill] = useState('')
     const [newCert, setNewCert] = useState({ name: '', issuer: '', year: '' })
     const [newWork, setNewWork] = useState({ title: '', description: '', year: '' })
+    const [newCertFile, setNewCertFile] = useState(null)
+    const [newWorkFile, setNewWorkFile] = useState(null)
+    const [uploading, setUploading] = useState(false)
+
+    const uploadImage = async (file) => {
+        if (!file) return null
+
+        try {
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+            const filePath = `${user.id}/${fileName}`
+
+            const { error: uploadError } = await supabase.storage
+                .from('professional_assets')
+                .upload(filePath, file)
+
+            if (uploadError) throw uploadError
+
+            const { data } = supabase.storage
+                .from('professional_assets')
+                .getPublicUrl(filePath)
+
+            return data.publicUrl
+        } catch (error) {
+            console.error('Error uploading image:', error)
+            alert('Failed to upload image')
+            return null
+        }
+    }
 
     const professions = [
         'Lawyer', 'Plumber', 'Electrician', 'Carpenter', 'Designer',
@@ -139,13 +168,21 @@ export default function CreateProfessionalProfile() {
         }))
     }
 
-    const addCertification = () => {
+    const addCertification = async () => {
         if (newCert.name && newCert.issuer) {
+            setUploading(true)
+            let imageUrl = null
+            if (newCertFile) {
+                imageUrl = await uploadImage(newCertFile)
+            }
+
             setFormData(prev => ({
                 ...prev,
-                certifications: [...prev.certifications, newCert]
+                certifications: [...prev.certifications, { ...newCert, image_url: imageUrl }]
             }))
             setNewCert({ name: '', issuer: '', year: '' })
+            setNewCertFile(null)
+            setUploading(false)
         }
     }
 
@@ -156,13 +193,21 @@ export default function CreateProfessionalProfile() {
         }))
     }
 
-    const addWork = () => {
+    const addWork = async () => {
         if (newWork.title && newWork.description) {
+            setUploading(true)
+            let imageUrl = null
+            if (newWorkFile) {
+                imageUrl = await uploadImage(newWorkFile)
+            }
+
             setFormData(prev => ({
                 ...prev,
-                previous_works: [...prev.previous_works, newWork]
+                previous_works: [...prev.previous_works, { ...newWork, image_url: imageUrl }]
             }))
             setNewWork({ title: '', description: '', year: '' })
+            setNewWorkFile(null)
+            setUploading(false)
         }
     }
 
@@ -414,6 +459,161 @@ export default function CreateProfessionalProfile() {
                                     <X className="h-4 w-4" />
                                 </button>
                             </span>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Certifications */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h2 className="text-xl font-bold text-slate-900 mb-4">Certifications</h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input
+                            type="text"
+                            value={newCert.name}
+                            onChange={(e) => setNewCert(prev => ({ ...prev, name: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Certificate Name"
+                        />
+                        <input
+                            type="text"
+                            value={newCert.issuer}
+                            onChange={(e) => setNewCert(prev => ({ ...prev, issuer: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Issuing Organization"
+                        />
+                        <input
+                            type="text"
+                            value={newCert.year}
+                            onChange={(e) => setNewCert(prev => ({ ...prev, year: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Year"
+                        />
+                        <div className="relative">
+                            <input
+                                type="file"
+                                onChange={(e) => setNewCertFile(e.target.files[0])}
+                                className="hidden"
+                                id="cert-file"
+                                accept="image/*"
+                            />
+                            <label
+                                htmlFor="cert-file"
+                                className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 text-slate-600"
+                            >
+                                <Upload className="h-4 w-4" />
+                                {newCertFile ? newCertFile.name : 'Upload Certificate Photo'}
+                            </label>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={addCertification}
+                        disabled={uploading || !newCert.name || !newCert.issuer}
+                        className="mb-6 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                    >
+                        {uploading ? 'Uploading...' : 'Add Certification'}
+                    </button>
+
+                    <div className="space-y-3">
+                        {formData.certifications.map((cert, idx) => (
+                            <div key={idx} className="flex items-start justify-between p-4 bg-slate-50 rounded-lg">
+                                <div className="flex gap-4">
+                                    {cert.image_url && (
+                                        <img src={cert.image_url} alt="Cert" className="h-12 w-12 rounded object-cover border border-slate-200" />
+                                    )}
+                                    <div>
+                                        <h4 className="font-semibold text-slate-900">{cert.name}</h4>
+                                        <p className="text-sm text-slate-600">{cert.issuer} • {cert.year}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeCertification(idx)}
+                                    className="text-slate-400 hover:text-red-500"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Portfolio / Previous Works */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h2 className="text-xl font-bold text-slate-900 mb-4">Portfolio / Previous Work</h2>
+
+                    <div className="grid grid-cols-1 gap-4 mb-4">
+                        <input
+                            type="text"
+                            value={newWork.title}
+                            onChange={(e) => setNewWork(prev => ({ ...prev, title: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Project Title"
+                        />
+                        <textarea
+                            value={newWork.description}
+                            onChange={(e) => setNewWork(prev => ({ ...prev, description: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Description of work..."
+                            rows={2}
+                        />
+                        <div className="flex gap-4">
+                            <input
+                                type="text"
+                                value={newWork.year}
+                                onChange={(e) => setNewWork(prev => ({ ...prev, year: e.target.value }))}
+                                className="w-32 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                placeholder="Year"
+                            />
+                            <div className="flex-1 relative">
+                                <input
+                                    type="file"
+                                    onChange={(e) => setNewWorkFile(e.target.files[0])}
+                                    className="hidden"
+                                    id="work-file"
+                                    accept="image/*"
+                                />
+                                <label
+                                    htmlFor="work-file"
+                                    className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 text-slate-600"
+                                >
+                                    <Upload className="h-4 w-4" />
+                                    {newWorkFile ? newWorkFile.name : 'Upload Project Photo'}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={addWork}
+                        disabled={uploading || !newWork.title || !newWork.description}
+                        className="mb-6 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                    >
+                        {uploading ? 'Uploading...' : 'Add Project'}
+                    </button>
+
+                    <div className="space-y-4">
+                        {formData.previous_works.map((work, idx) => (
+                            <div key={idx} className="flex items-start justify-between p-4 bg-slate-50 rounded-lg">
+                                <div className="flex gap-4 w-full">
+                                    {work.image_url && (
+                                        <img src={work.image_url} alt="Work" className="h-16 w-16 rounded object-cover border border-slate-200 flex-shrink-0" />
+                                    )}
+                                    <div className="min-w-0">
+                                        <h4 className="font-semibold text-slate-900 truncate">{work.title}</h4>
+                                        <p className="text-xs text-slate-500 mb-1">{work.year}</p>
+                                        <p className="text-sm text-slate-600 line-clamp-2">{work.description}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeWork(idx)}
+                                    className="text-slate-400 hover:text-red-500 ml-2"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
                         ))}
                     </div>
                 </div>

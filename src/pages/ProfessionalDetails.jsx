@@ -240,7 +240,13 @@ export default function ProfessionalDetails() {
                                         <h4 className="text-lg font-bold text-slate-900">{work.title}</h4>
                                         <p className="text-sm text-slate-400 mb-2">{work.year}</p>
                                         <p className="text-slate-600 mb-4">{work.description}</p>
-                                        {/* Placeholder for images if we implemented image upload in form */}
+                                        {work.image_url && (
+                                            <img
+                                                src={work.image_url}
+                                                alt={work.title}
+                                                className="w-full md:w-2/3 h-48 rounded-lg object-cover border border-slate-100 shadow-sm"
+                                            />
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -262,9 +268,17 @@ export default function ProfessionalDetails() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {profile.certifications.map((cert, index) => (
                                     <div key={index} className="flex gap-4 p-4 rounded-lg bg-slate-50 border border-slate-100">
-                                        <div className="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                                            <Award className="h-5 w-5" />
-                                        </div>
+                                        {cert.image_url ? (
+                                            <img
+                                                src={cert.image_url}
+                                                alt={cert.name}
+                                                className="h-16 w-16 rounded object-cover border border-slate-200 flex-shrink-0"
+                                            />
+                                        ) : (
+                                            <div className="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                                <Award className="h-5 w-5" />
+                                            </div>
+                                        )}
                                         <div>
                                             <h4 className="font-semibold text-slate-900">{cert.name}</h4>
                                             <p className="text-sm text-slate-600">{cert.issuer}</p>
