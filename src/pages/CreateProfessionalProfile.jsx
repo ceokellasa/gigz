@@ -8,8 +8,12 @@ import clsx from 'clsx'
 import { PROFESSIONS } from '../constants/professions'
 
 export default function CreateProfessionalProfile() {
-    const { user, profile, loading: authLoading } = useAuth()
+    const { user, profile, loading: authLoading, refreshProfile } = useAuth()
     const navigate = useNavigate()
+
+    useEffect(() => {
+        refreshProfile()
+    }, [])
     const [loading, setLoading] = useState(false)
     const [existingProfile, setExistingProfile] = useState(null)
     const [checkingProfile, setCheckingProfile] = useState(true)
