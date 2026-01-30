@@ -14,7 +14,7 @@ export default function SubscriptionSuccess() {
     const [error, setError] = useState(null)
 
     const orderId = searchParams.get('order_id')
-    const planId = searchParams.get('plan_id')
+    const [planId] = useState(() => searchParams.get('plan_id') || localStorage.getItem('pending_payment_plan'))
 
     useEffect(() => {
         if (!orderId) {
@@ -85,6 +85,8 @@ export default function SubscriptionSuccess() {
                 console.error('Activation Error:', err)
                 setStatus('failed')
                 setError('Error: ' + (err.message || 'Unknown error occurred'))
+            } finally {
+                localStorage.removeItem('pending_payment_plan')
             }
         }
 

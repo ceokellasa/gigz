@@ -158,6 +158,9 @@ export default function CreateProfessionalProfile() {
         setLoading(true)
         try {
             const plan = { id: 'professional_fee', price: 1, name: 'Professional Activation' }
+            // Store plan type in local storage to handle redirect back
+            localStorage.setItem('pending_payment_plan', plan.id)
+
             // Pass updated phone number
             const sessionId = await createPaymentSession(plan, user, { ...profile, phone_number: paymentPhone })
             await doPayment(sessionId)
