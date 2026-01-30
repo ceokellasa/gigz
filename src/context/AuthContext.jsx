@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -93,12 +93,12 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Function to refresh profile data (call after subscription updates, etc.)
-    const refreshProfile = async () => {
+    const refreshProfile = useCallback(async () => {
         if (user) {
             await fetchProfile(user.id)
             await fetchUnreadCount(user.id)
         }
-    }
+    }, [user])
 
     const signUp = async (email, password, role, fullName) => {
         const { data, error } = await supabase.auth.signUp({
