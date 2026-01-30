@@ -56,6 +56,7 @@
 - **Monetization:** Implemented a ₹99 one-time fee to unlock professional profile creation.
 - **Payment Gate:** Integrated Cashfree payment flow; new users MUST pay to create a profile.
 - **Success Handling:** Updated `SubscriptionSuccess.jsx` to activate the professional account upon successful payment.
+- **Payment Phone Handling:** Added phone number confirmation input to the payment screen to ensure valid contact details are used.
 
 ---
 

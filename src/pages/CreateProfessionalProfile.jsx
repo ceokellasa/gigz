@@ -16,6 +16,7 @@ export default function CreateProfessionalProfile() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [dropdownSearch, setDropdownSearch] = useState('')
     const [isOtherSelected, setIsOtherSelected] = useState(false)
+    const [paymentPhone, setPaymentPhone] = useState('')
 
     const [formData, setFormData] = useState({
         profession: '',
@@ -75,8 +76,14 @@ export default function CreateProfessionalProfile() {
     useEffect(() => {
         if (user) {
             fetchExistingProfile()
+        } else if (!authLoading) {
+            setCheckingProfile(false)
         }
-    }, [user])
+
+        if (profile?.phone_number) {
+            setPaymentPhone(profile.phone_number)
+        }
+    }, [user, profile, authLoading])
 
     // KYC Blocking Check
     // We check if the user is verified. If not, we return a blocking UI.
@@ -125,10 +132,16 @@ export default function CreateProfessionalProfile() {
     }
 
     const handlePayment = async () => {
+        if (!paymentPhone || paymentPhone.length < 10) {
+            alert('Please enter a valid phone number for payment')
+            return
+        }
+
         setLoading(true)
         try {
             const plan = { id: 'professional_fee', price: 99, name: 'Professional Activation' }
-            const sessionId = await createPaymentSession(plan, user, profile)
+            // Pass updated phone number
+            const sessionId = await createPaymentSession(plan, user, { ...profile, phone_number: paymentPhone })
             await doPayment(sessionId)
         } catch (error) {
             console.error('Payment Error:', error)
@@ -290,6 +303,20 @@ export default function CreateProfessionalProfile() {
                     <p className="text-slate-600 mb-6">
                         To maintain quality and trust, we charge a one-time activation fee of <strong>₹99</strong> for professional profiles.
                     </p>
+
+                    <div className="mb-4 text-left">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Confirm Phone Number
+                        </label>
+                        <input
+                            type="tel"
+                            value={paymentPhone}
+                            onChange={(e) => setPaymentPhone(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                            placeholder="+91"
+                        />
+                    </div>
+
                     <button
                         onClick={handlePayment}
                         disabled={loading}
