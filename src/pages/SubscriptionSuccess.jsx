@@ -26,13 +26,9 @@ export default function SubscriptionSuccess() {
 
         const activateSubscription = async () => {
             try {
-                // Verify Payment Status with Cashfree
-                setStatus('verifying')
-                const verifyData = await verifyPayment(orderId)
-
-                if (verifyData.order_status !== 'PAID') {
-                    throw new Error(`Payment not completed (Status: ${verifyData.order_status})`)
-                }
+                // Get user first
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) throw new Error('User not logged in')
 
                 if (planId === 'professional_fee') {
                     const { error: updateError } = await supabase
@@ -59,11 +55,9 @@ export default function SubscriptionSuccess() {
                 const now = new Date()
                 const expiresAt = new Date(now.setDate(now.getDate() + durationDays))
 
-                const { data: { user } } = await supabase.auth.getUser()
 
-                if (!user) {
-                    throw new Error('User not logged in')
-                }
+
+                // User is already fetched above
 
                 // Calculate reveals based on plan
                 let reveals = 50 // default for 1_week
