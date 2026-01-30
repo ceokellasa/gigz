@@ -18,6 +18,7 @@ export default function CreateProfessionalProfile() {
     const [dropdownSearch, setDropdownSearch] = useState('')
     const [isOtherSelected, setIsOtherSelected] = useState(false)
     const [paymentPhone, setPaymentPhone] = useState('')
+    const [hasPaid, setHasPaid] = useState(false)
 
     const [formData, setFormData] = useState({
         profession: '',
