@@ -148,44 +148,72 @@ export default function Messages() {
         }
     }, [selectedConversation])
 
-    // Handle Support Mode deep link
+    // Handle Support Mode deep link & Direct Message deep link
     useEffect(() => {
-        const initSupportChat = async () => {
+        const initChat = async () => {
             const mode = searchParams.get('mode')
-            if (mode === 'support' && user && !loading) {
-                // Find Admin ID - trying simple role lookup
-                const { data: adminProfile } = await supabase
-                    .from('profiles')
-                    .select('id, full_name, avatar_url')
-                    .eq('role', 'admin')
-                    .limit(1)
-                    .single()
+            const recipientId = searchParams.get('userId')
 
-                if (adminProfile) {
-                    const adminId = adminProfile.id
+            if (user && !loading) {
+                if (mode === 'support') {
+                    // Find Admin ID - trying simple role lookup
+                    const { data: adminProfile } = await supabase
+                        .from('profiles')
+                        .select('id, full_name, avatar_url')
+                        .eq('role', 'admin')
+                        .limit(1)
+                        .single()
 
-                    // Check if we already have a conversation with this admin
-                    const existingConv = conversations.find(c => c.participant_id === adminId && !c.gig_id)
+                    if (adminProfile) {
+                        const adminId = adminProfile.id
+                        const existingConv = conversations.find(c => c.participant_id === adminId && !c.gig_id)
+
+                        if (existingConv) {
+                            setSelectedConversation(existingConv)
+                        } else {
+                            setSelectedConversation({
+                                id: 'draft-support',
+                                gig_id: null,
+                                gig_title: 'Support Chat',
+                                participant_id: adminId,
+                                participant_name: adminProfile.full_name || 'Support Admin',
+                                participant_avatar: adminProfile.avatar_url,
+                                last_message: '',
+                                last_message_at: new Date().toISOString()
+                            })
+                        }
+                    }
+                } else if (recipientId && recipientId !== user.id) {
+                    // Direct Message to specific user
+                    const existingConv = conversations.find(c => c.participant_id === recipientId && !c.gig_id)
 
                     if (existingConv) {
                         setSelectedConversation(existingConv)
                     } else {
-                        // Create draft conversation 
-                        setSelectedConversation({
-                            id: 'draft-support',
-                            gig_id: null,
-                            gig_title: 'Support Chat',
-                            participant_id: adminId,
-                            participant_name: adminProfile.full_name || 'Support Admin',
-                            participant_avatar: adminProfile.avatar_url,
-                            last_message: '',
-                            last_message_at: new Date().toISOString()
-                        })
+                        // Fetch profile to make draft
+                        const { data: recipientProfile } = await supabase
+                            .from('profiles')
+                            .select('id, full_name, avatar_url')
+                            .eq('id', recipientId)
+                            .single()
+
+                        if (recipientProfile) {
+                            setSelectedConversation({
+                                id: `draft-${recipientId}`,
+                                gig_id: null,
+                                gig_title: 'Direct Message',
+                                participant_id: recipientId,
+                                participant_name: recipientProfile.full_name || 'User',
+                                participant_avatar: recipientProfile.avatar_url,
+                                last_message: '',
+                                last_message_at: new Date().toISOString()
+                            })
+                        }
                     }
                 }
             }
         }
-        initSupportChat()
+        initChat()
     }, [searchParams, user, loading, conversations])
 
     useEffect(() => {

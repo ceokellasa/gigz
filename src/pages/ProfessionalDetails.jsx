@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import {
     MapPin, Briefcase, DollarSign, Globe, Linkedin, Phone,
     CheckCircle, Calendar, Award, Image as ImageIcon,
-    ChevronLeft, Mail
+    ChevronLeft, Mail, MessageSquare
 } from 'lucide-react'
 
 export default function ProfessionalDetails() {
@@ -122,6 +122,13 @@ export default function ProfessionalDetails() {
 
                         {/* Action Buttons */}
                         <div className="flex gap-3 mt-4 md:mt-0 w-full md:w-auto">
+                            <Link
+                                to={`/messages?userId=${profile.user_id}`}
+                                className="flex-1 md:flex-none btn-secondary flex items-center justify-center gap-2"
+                            >
+                                <MessageSquare className="h-4 w-4" />
+                                Message
+                            </Link>
                             {profile.phone && (
                                 <a href={`tel:${profile.phone}`} className="flex-1 md:flex-none btn-primary flex items-center justify-center gap-2">
                                     <Phone className="h-4 w-4" />
@@ -151,7 +158,12 @@ export default function ProfessionalDetails() {
                             Pricing
                         </h3>
                         <div className="space-y-4">
-                            {profile.hourly_rate && (
+                            {profile.contact_for_pricing ? (
+                                <div className="flex justify-between items-center py-2 border-b border-slate-100 last:border-0">
+                                    <span className="text-slate-600">Hourly Rate</span>
+                                    <span className="font-bold text-indigo-600 text-lg">Contact for Pricing</span>
+                                </div>
+                            ) : profile.hourly_rate && (
                                 <div className="flex justify-between items-center py-2 border-b border-slate-100 last:border-0">
                                     <span className="text-slate-600">Hourly Rate</span>
                                     <span className="font-bold text-slate-900 text-lg">₹{profile.hourly_rate}/hr</span>

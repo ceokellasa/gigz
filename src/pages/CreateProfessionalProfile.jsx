@@ -26,7 +26,8 @@ export default function CreateProfessionalProfile() {
         phone: '',
         skills: [],
         certifications: [],
-        previous_works: []
+        previous_works: [],
+        contact_for_pricing: false
     })
 
     const [newSkill, setNewSkill] = useState('')
@@ -105,7 +106,8 @@ export default function CreateProfessionalProfile() {
                     phone: data.phone || '',
                     skills: data.skills || [],
                     certifications: data.certifications || [],
-                    previous_works: data.previous_works || []
+                    previous_works: data.previous_works || [],
+                    contact_for_pricing: data.contact_for_pricing || false
                 })
             }
         } catch (error) {
@@ -405,10 +407,20 @@ export default function CreateProfessionalProfile() {
                                 type="number"
                                 value={formData.hourly_rate}
                                 onChange={(e) => setFormData(prev => ({ ...prev, hourly_rate: e.target.value }))}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-slate-100 disabled:text-slate-400"
                                 min="0"
                                 step="0.01"
+                                disabled={formData.contact_for_pricing}
                             />
+                            <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.contact_for_pricing}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, contact_for_pricing: e.target.checked }))}
+                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                />
+                                <span className="text-sm text-slate-600">Contact for pricing</span>
+                            </label>
                         </div>
 
                         <div>
