@@ -3,7 +3,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Menu as MenuIcon, X, User, LogOut, Briefcase, PlusCircle, Search, MessageSquare, ShieldAlert, Users } from 'lucide-react'
+import { Menu as MenuIcon, X, User, LogOut, Briefcase, PlusCircle, Search, MessageSquare, ShieldAlert, Users, Receipt } from 'lucide-react'
 import clsx from 'clsx'
 import BroadcastListener from './BroadcastListener'
 
@@ -126,6 +126,20 @@ export default function Layout() {
                                                         >
                                                             <User className="h-4 w-4" />
                                                             Your Profile
+                                                        </Link>
+                                                    )}
+                                                </Menu.Item>
+                                                <Menu.Item>
+                                                    {({ active }) => (
+                                                        <Link
+                                                            to="/payments"
+                                                            className={clsx(
+                                                                active ? 'bg-slate-50' : '',
+                                                                'block w-full text-left px-4 py-2 text-sm text-slate-700 flex items-center gap-2'
+                                                            )}
+                                                        >
+                                                            <Receipt className="h-4 w-4" />
+                                                            Payments
                                                         </Link>
                                                     )}
                                                 </Menu.Item>

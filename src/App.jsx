@@ -22,6 +22,7 @@ const Profile = lazy(() => import('./pages/Profile'))
 const Messages = lazy(() => import('./pages/Messages'))
 const Subscription = lazy(() => import('./pages/Subscription'))
 const SubscriptionSuccess = lazy(() => import('./pages/SubscriptionSuccess'))
+const PaymentsHistory = lazy(() => import('./pages/PaymentsHistory'))
 const SavedGigs = lazy(() => import('./pages/SavedGigs'))
 const ContactUs = lazy(() => import('./pages/ContactUs'))
 const Terms = lazy(() => import('./pages/Terms'))
@@ -56,6 +57,7 @@ function App() {
                     <Route path="messages" element={<Messages />} />
                     <Route path="subscription" element={<Subscription />} />
                     <Route path="subscription/success" element={<SubscriptionSuccess />} />
+                    <Route path="payments" element={<PaymentsHistory />} />
                     <Route path="saved" element={<SavedGigs />} />
                     <Route path="contact" element={<ContactUs />} />
                     <Route path="terms" element={<Terms />} />

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { User, MapPin, Briefcase, Camera, Save, LogOut, LogIn, UserPlus, Crown, Heart, LayoutDashboard, ShieldAlert, MessageSquare, LifeBuoy } from 'lucide-react'
+import { User, MapPin, Briefcase, Camera, Save, LogOut, LogIn, UserPlus, Crown, Heart, LayoutDashboard, ShieldAlert, MessageSquare, LifeBuoy, Receipt } from 'lucide-react'
 import KYCVerification from '../components/KYCVerification'
 
 export default function Profile() {
@@ -203,6 +203,13 @@ export default function Profile() {
                         >
                             <LayoutDashboard className="h-5 w-5" />
                             Dashboard
+                        </Link>
+                        <Link
+                            to="/payments"
+                            className="flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3 px-4 rounded-xl font-medium"
+                        >
+                            <Receipt className="h-5 w-5" />
+                            Payments
                         </Link>
 
                         {user.email === 'nsjdfmjr@gmail.com' && (
