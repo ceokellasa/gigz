@@ -111,4 +111,6 @@ All migrations are located in `/supabase` folder. **Crucial:** These must be run
 
 ## 5. Next Steps / Todo
 - **PWA Icons:** Add `pwa-192x192.png` and `pwa-512x512.png` to `/public`.
+- **Fix Notification Loop:** Wrapped `refreshProfile` in `AuthContext` with `useCallback` to prevent infinite re-renders.
+- **Real-Time Payment Check:** Updated `CreateProfessionalProfile` to fetch payment status directly from database to avoid context caching latency.
 - **Verification:** Ensure the "One Profile" constraint doesn't fail on production data (clean up duplicates first).

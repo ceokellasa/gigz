@@ -84,8 +84,12 @@ export default function CreateProfessionalProfile() {
             setCheckingProfile(false)
         }
 
+        // Sync from context initially, but fetchExistingProfile will confirm truth
         if (profile?.phone_number) {
             setPaymentPhone(profile.phone_number)
+        }
+        if (profile?.has_paid_professional_fee) {
+            setHasPaid(true)
         }
     }, [user, profile, authLoading])
 
@@ -96,6 +100,18 @@ export default function CreateProfessionalProfile() {
 
     const fetchExistingProfile = async () => {
         try {
+            // Check payment status directly to avoid context lag
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('has_paid_professional_fee, phone_number')
+                .eq('id', user.id)
+                .single()
+
+            if (profileData) {
+                if (profileData.has_paid_professional_fee) setHasPaid(true)
+                if (profileData.phone_number) setPaymentPhone(profileData.phone_number)
+            }
+
             const { data, error } = await supabase
                 .from('professional_profiles')
                 .select('*')
@@ -296,7 +312,7 @@ export default function CreateProfessionalProfile() {
     }
 
     // Payment Block Logic
-    if (!existingProfile && !profile?.has_paid_professional_fee) {
+    if (!existingProfile && !hasPaid) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
                 <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center border border-slate-200">
