@@ -37,6 +37,11 @@
 - **Config:** `vite.config.js` updated to generate Service Worker.
 - **Status:** ready for "Add to Home Screen" (requires icons in `public/`).
 
+### E. UI/UX Improvements
+- **Fixed Bottom Nav Conflict:**
+    - Increased `Layout` bottom padding to `pb-28` to clear the floating island on all pages.
+    - Adjusted `Messages` page height to `calc(100vh - 180px)` on mobile so the chat input floats *above* the navigation.
+
 ---
 
 ## 2. Database Migrations (SQL)

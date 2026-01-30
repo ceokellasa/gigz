@@ -470,7 +470,7 @@ export default function Messages() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-[calc(100vh-80px)]">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-[calc(100vh-180px)] md:h-[calc(100vh-80px)]">
             <div className="flex h-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
                 {/* Sidebar */}
                 <div className={clsx(
