@@ -138,12 +138,15 @@ export default function Home() {
                         {settings.hero_subheadline || 'Find gigs, get paid, and take control of your earnings. The modern way to work is here.'}
                     </p>
 
-                    <div className="mt-10 flex justify-center gap-4">
+                    <div className="mt-10 flex flex-wrap justify-center gap-4">
                         <Link to="/post-gig" className="btn-primary px-8 py-4 text-lg">
-                            Post a Gig
+                            {settings.hero_cta_text_1 || 'Post a Gig'}
                         </Link>
                         <Link to="/gigs" className="btn-secondary px-8 py-4 text-lg">
-                            Find Work
+                            {settings.hero_cta_text_2 || 'Find Work'}
+                        </Link>
+                        <Link to="/professionals" className="px-8 py-4 text-lg font-bold rounded-full bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm">
+                            {settings.hero_cta_text_3 || 'Hire Pros'}
                         </Link>
                     </div>
 
@@ -166,22 +169,22 @@ export default function Home() {
                             <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <Zap className="h-8 w-8 text-purple-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">Instant Connections</h3>
-                            <p className="text-slate-500">Connect with talent or clients in seconds. No lengthy waiting periods.</p>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">{settings.feature_1_title || 'Instant Connections'}</h3>
+                            <p className="text-slate-500">{settings.feature_1_desc || 'Connect with talent or clients in seconds. No lengthy waiting periods.'}</p>
                         </div>
                         <div className="text-center">
                             <div className="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <Shield className="h-8 w-8 text-pink-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">Verified Profiles</h3>
-                            <p className="text-slate-500">Every user is verified via mobile number to ensure a safe community.</p>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">{settings.feature_2_title || 'Verified Profiles'}</h3>
+                            <p className="text-slate-500">{settings.feature_2_desc || 'Every user is verified via mobile number to ensure a safe community.'}</p>
                         </div>
                         <div className="text-center">
                             <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <TrendingUp className="h-8 w-8 text-indigo-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">Grow Your Income</h3>
-                            <p className="text-slate-500">Access high-paying gigs and keep 100% of your earnings.</p>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">{settings.feature_3_title || 'Grow Your Income'}</h3>
+                            <p className="text-slate-500">{settings.feature_3_desc || 'Access high-paying gigs and keep 100% of your earnings.'}</p>
                         </div>
                     </div>
                 </div>

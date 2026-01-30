@@ -8,6 +8,7 @@ import AdminUserList from './AdminUserList'
 import AdminCMS from './AdminCMS'
 import AdminKYCRequests from './AdminKYCRequests'
 import AdminNotifications from './AdminNotifications'
+import AdminProfessionals from './AdminProfessionals'
 
 const ADMIN_EMAIL = 'nsjdfmjr@gmail.com'
 
@@ -137,6 +138,15 @@ export default function AdminDashboard() {
                         CMS / Settings
                     </button>
                     <button
+                        onClick={() => setActiveTab('professionals')}
+                        className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'professionals'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            }`}
+                    >
+                        Professionals
+                    </button>
+                    <button
                         onClick={() => setActiveTab('kyc')}
                         className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'kyc'
                             ? 'border-indigo-500 text-indigo-600'
@@ -171,6 +181,8 @@ export default function AdminDashboard() {
                 )}
 
                 {activeTab === 'users' && <AdminUserList />}
+
+                {activeTab === 'professionals' && <AdminProfessionals />}
 
                 {activeTab === 'kyc' && <AdminKYCRequests />}
 

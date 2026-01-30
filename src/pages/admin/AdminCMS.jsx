@@ -18,7 +18,7 @@ export default function AdminCMS() {
 
     const sections = [
         { id: 'general', label: 'General', icon: Layout },
-        { id: 'hero', label: 'Home Hero', icon: Image },
+        { id: 'hero', label: 'Home Page', icon: Image },
         { id: 'appearance', label: 'Appearance', icon: Palette },
         { id: 'content', label: 'Content', icon: Type },
         { id: 'logic', label: 'Logic & Toggles', icon: Settings },
@@ -37,6 +37,15 @@ export default function AdminCMS() {
             { key: 'hero_headline', label: 'Hero Headline', type: 'text', multiline: true },
             { key: 'hero_subheadline', label: 'Hero Subheadline', type: 'text', multiline: true },
             { key: 'hero_image_url', label: 'Hero Image URL', type: 'text' },
+            { key: 'hero_cta_text_1', label: 'Button 1 Text (Post Gig)', type: 'text' },
+            { key: 'hero_cta_text_2', label: 'Button 2 Text (Find Work)', type: 'text' },
+            { key: 'hero_cta_text_3', label: 'Button 3 Text (Hire Pros)', type: 'text' },
+            { key: 'feature_1_title', label: 'Feature 1 Title', type: 'text' },
+            { key: 'feature_1_desc', label: 'Feature 1 Description', type: 'text', multiline: true },
+            { key: 'feature_2_title', label: 'Feature 2 Title', type: 'text' },
+            { key: 'feature_2_desc', label: 'Feature 2 Description', type: 'text', multiline: true },
+            { key: 'feature_3_title', label: 'Feature 3 Title', type: 'text' },
+            { key: 'feature_3_desc', label: 'Feature 3 Description', type: 'text', multiline: true },
         ],
         appearance: [
             { key: 'primary_color', label: 'Primary Color', type: 'color' },

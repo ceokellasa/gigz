@@ -42,6 +42,11 @@
     - Increased `Layout` bottom padding to `pb-28` to clear the floating island on all pages.
     - Adjusted `Messages` page height to `calc(100vh - 180px)` on mobile so the chat input floats *above* the navigation.
 
+### F. Admin & Home Customization
+- **Admin CMS:** Added "Home Page" section to customize Hero Headline, Subheadline, Image, Button Texts, and Feature Cards (3x).
+- **Home Page:** Added "Hire Pros" button to Hero and integrated CMS settings for dynamic content.
+- **Admin Professionals:** Added "Professionals" tab to Admin Dashboard to list, search, and delete professional profiles.
+
 ---
 
 ## 2. Database Migrations (SQL)
