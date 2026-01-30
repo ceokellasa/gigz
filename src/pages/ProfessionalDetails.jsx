@@ -105,6 +105,12 @@ export default function ProfessionalDetails() {
                                         {profile.location}
                                     </div>
                                 )}
+                                {profile.age && (
+                                    <div className="flex items-center gap-1">
+                                        <Calendar className="h-4 w-4" />
+                                        {profile.age} years old
+                                    </div>
+                                )}
                                 {profile.years_of_experience && (
                                     <div className="flex items-center gap-1">
                                         <Briefcase className="h-4 w-4" />
