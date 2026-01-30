@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { verifyPayment } from '../lib/cashfree'
 import { useToast } from '../components/Toast'
 import { useAuth } from '../context/AuthContext'
 
@@ -85,7 +84,7 @@ export default function SubscriptionSuccess() {
             } catch (err) {
                 console.error('Activation Error:', err)
                 setStatus('failed')
-                setError(err.message || 'Failed to activate subscription.')
+                setError('Error: ' + (err.message || 'Unknown error occurred'))
             }
         }
 
