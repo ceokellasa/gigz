@@ -162,7 +162,7 @@ export default function CreateProfessionalProfile() {
 
         setLoading(true)
         try {
-            const plan = { id: 'professional_fee', price: 1, name: 'Professional Activation' }
+            const plan = { id: 'professional_fee', price: 99, name: 'Professional Activation' }
             // Store plan type in local storage to handle redirect back
             localStorage.setItem('pending_payment_plan', plan.id)
 
@@ -355,7 +355,7 @@ export default function CreateProfessionalProfile() {
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Professional Activation</h2>
                     <p className="text-slate-600 mb-6">
-                        To maintain quality and trust, we charge a one-time activation fee of <strong>₹1</strong> for professional profiles.
+                        To maintain quality and trust, we charge a one-time activation fee of <strong>₹99</strong> for professional profiles.
                     </p>
 
                     <div className="mb-4 text-left">
