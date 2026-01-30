@@ -139,7 +139,7 @@ export default function CreateProfessionalProfile() {
 
         setLoading(true)
         try {
-            const plan = { id: 'professional_fee', price: 99, name: 'Professional Activation' }
+            const plan = { id: 'professional_fee', price: 1, name: 'Professional Activation' }
             // Pass updated phone number
             const sessionId = await createPaymentSession(plan, user, { ...profile, phone_number: paymentPhone })
             await doPayment(sessionId)
@@ -301,7 +301,7 @@ export default function CreateProfessionalProfile() {
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Professional Activation</h2>
                     <p className="text-slate-600 mb-6">
-                        To maintain quality and trust, we charge a one-time activation fee of <strong>₹99</strong> for professional profiles.
+                        To maintain quality and trust, we charge a one-time activation fee of <strong>₹1</strong> for professional profiles.
                     </p>
 
                     <div className="mb-4 text-left">
@@ -323,7 +323,7 @@ export default function CreateProfessionalProfile() {
                         className="w-full btn-primary py-3 flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <CreditCard className="h-5 w-5" />}
-                        Pay ₹99 to Unlock
+                        Pay ₹1 to Unlock
                     </button>
                     <button
                         onClick={() => navigate('/')}
