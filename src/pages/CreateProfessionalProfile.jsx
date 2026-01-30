@@ -8,12 +8,9 @@ import clsx from 'clsx'
 import { PROFESSIONS } from '../constants/professions'
 
 export default function CreateProfessionalProfile() {
-    const { user, profile, loading: authLoading, refreshProfile } = useAuth()
+    const { user, profile, loading: authLoading } = useAuth()
     const navigate = useNavigate()
 
-    useEffect(() => {
-        refreshProfile()
-    }, [])
     const [loading, setLoading] = useState(false)
     const [existingProfile, setExistingProfile] = useState(null)
     const [checkingProfile, setCheckingProfile] = useState(true)
@@ -86,7 +83,7 @@ export default function CreateProfessionalProfile() {
 
         // Sync from context initially, but fetchExistingProfile will confirm truth
         if (profile?.phone_number) {
-            setPaymentPhone(profile.phone_number)
+            setPaymentPhone(profile.phone_number || '')
         }
         if (profile?.has_paid_professional_fee) {
             setHasPaid(true)
@@ -109,7 +106,7 @@ export default function CreateProfessionalProfile() {
 
             if (profileData) {
                 if (profileData.has_paid_professional_fee) setHasPaid(true)
-                if (profileData.phone_number) setPaymentPhone(profileData.phone_number)
+                if (profileData.phone_number) setPaymentPhone(profileData.phone_number || '')
             }
 
             const { data, error } = await supabase
