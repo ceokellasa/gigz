@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { verifyPayment } from '../lib/cashfree'
 import { useToast } from '../components/Toast'
 import { useAuth } from '../context/AuthContext'
 
@@ -25,6 +26,14 @@ export default function SubscriptionSuccess() {
 
         const activateSubscription = async () => {
             try {
+                // Verify Payment Status with Cashfree
+                setStatus('verifying')
+                const verifyData = await verifyPayment(orderId)
+
+                if (verifyData.order_status !== 'PAID') {
+                    throw new Error(`Payment not completed (Status: ${verifyData.order_status})`)
+                }
+
                 if (planId === 'professional_fee') {
                     const { error: updateError } = await supabase
                         .from('profiles')

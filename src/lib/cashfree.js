@@ -54,3 +54,29 @@ export const doPayment = async (paymentSessionId) => {
         returnUrl: `${window.location.origin}/subscription/success?order_id={order_id}`
     })
 }
+
+export const verifyPayment = async (orderId) => {
+    try {
+        const { data: { session } } = await supabase.auth.getSession()
+
+        const response = await fetch('https://rhqzywqsfjzjzbfqlyqf.supabase.co/functions/v1/verify-cashfree-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({ order_id: orderId })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to verify payment')
+        }
+
+        return data
+    } catch (error) {
+        console.error('Error verifying payment:', error)
+        throw error
+    }
+}
