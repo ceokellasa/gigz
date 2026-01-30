@@ -2,13 +2,18 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { Save, Plus, X, Upload, Trash2 } from 'lucide-react'
+import { Save, Plus, X, Upload, Trash2, ChevronDown, Search, Check } from 'lucide-react'
+import clsx from 'clsx'
+import { PROFESSIONS } from '../constants/professions'
 
 export default function CreateProfessionalProfile() {
     const { user, profile, loading: authLoading } = useAuth()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [existingProfile, setExistingProfile] = useState(null)
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const [dropdownSearch, setDropdownSearch] = useState('')
+    const [isOtherSelected, setIsOtherSelected] = useState(false)
 
     const [formData, setFormData] = useState({
         profession: '',
@@ -63,11 +68,7 @@ export default function CreateProfessionalProfile() {
         }
     }
 
-    const professions = [
-        'Lawyer', 'Plumber', 'Electrician', 'Carpenter', 'Designer',
-        'Developer', 'Photographer', 'Videographer', 'Tutor', 'Consultant',
-        'Accountant', 'Mechanic', 'Chef', 'Cleaner', 'Other'
-    ]
+
 
     useEffect(() => {
         if (user) {
@@ -109,6 +110,10 @@ export default function CreateProfessionalProfile() {
                     previous_works: data.previous_works || [],
                     contact_for_pricing: data.contact_for_pricing || false
                 })
+
+                if (data.profession && !PROFESSIONS.includes(data.profession)) {
+                    setIsOtherSelected(true)
+                }
             }
         } catch (error) {
             console.error('Error fetching profile:', error)
@@ -299,21 +304,86 @@ export default function CreateProfessionalProfile() {
                     <h2 className="text-xl font-bold text-slate-900 mb-4">Basic Information</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        <div className="relative">
                             <label className="block text-sm font-medium text-slate-700 mb-2">
                                 Profession *
                             </label>
-                            <select
-                                required
-                                value={formData.profession}
-                                onChange={(e) => setFormData(prev => ({ ...prev, profession: e.target.value }))}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            >
-                                <option value="">Select profession</option>
-                                {professions.map(prof => (
-                                    <option key={prof} value={prof}>{prof}</option>
-                                ))}
-                            </select>
+
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg text-left bg-white flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                >
+                                    <span className={formData.profession ? 'text-slate-900' : 'text-slate-400'}>
+                                        {isOtherSelected ? 'Other (Custom)' : (formData.profession || 'Select profession')}
+                                    </span>
+                                    <ChevronDown className="h-5 w-5 text-slate-400" />
+                                </button>
+
+                                {isDropdownOpen && (
+                                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                        <div className="sticky top-0 bg-white p-2 border-b border-slate-100 z-10">
+                                            <div className="relative">
+                                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
+                                                <input
+                                                    type="text"
+                                                    className="w-full pl-8 pr-4 py-2 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-indigo-500"
+                                                    placeholder="Search..."
+                                                    value={dropdownSearch}
+                                                    onChange={(e) => setDropdownSearch(e.target.value)}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    autoFocus
+                                                />
+                                            </div>
+                                        </div>
+                                        {PROFESSIONS.filter(p => p.toLowerCase().includes(dropdownSearch.toLowerCase())).map((prof) => (
+                                            <div
+                                                key={prof}
+                                                className={clsx(
+                                                    'cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-slate-50',
+                                                    formData.profession === prof ? 'text-indigo-600 bg-indigo-50' : 'text-slate-900'
+                                                )}
+                                                onClick={() => {
+                                                    setFormData(prev => ({ ...prev, profession: prof }))
+                                                    setIsOtherSelected(false)
+                                                    setIsDropdownOpen(false)
+                                                    setDropdownSearch('')
+                                                }}
+                                            >
+                                                {prof}
+                                                {formData.profession === prof && (
+                                                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-600" />
+                                                )}
+                                            </div>
+                                        ))}
+
+                                        <div
+                                            className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-slate-50 font-medium text-indigo-600 border-t border-slate-100"
+                                            onClick={() => {
+                                                setFormData(prev => ({ ...prev, profession: '' }))
+                                                setIsOtherSelected(true)
+                                                setIsDropdownOpen(false)
+                                            }}
+                                        >
+                                            Other (Specify)
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {isOtherSelected && (
+                                <div className="mt-2 text-left">
+                                    <input
+                                        type="text"
+                                        placeholder="Please specify your profession"
+                                        value={formData.profession}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, profession: e.target.value }))}
+                                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent animate-in fade-in slide-in-from-top-1"
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div>

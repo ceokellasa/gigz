@@ -47,6 +47,11 @@
 - **Home Page:** Added "Hire Pros" button to Hero and integrated CMS settings for dynamic content.
 - **Admin Professionals:** Added "Professionals" tab to Admin Dashboard to list, search, and delete professional profiles.
 
+### G. Professional Profile Enhancements
+- **Professions List:** Created `professions.js` constant with extensive list of categories (Trades, Tech, Events, etc.).
+- **Searchable Dropdown:** Replaced simple select with a custom Searchable Dropdown in `CreateProfessionalProfile.jsx`.
+- **Custom Profession:** Added "Other" option allowing users to specify a profession not in the list.
+
 ---
 
 ## 2. Database Migrations (SQL)
