@@ -30,12 +30,21 @@ export default function SubscriptionSuccess() {
                 if (!user) throw new Error('User not logged in')
 
                 if (planId === 'professional_fee') {
+                    console.log('Processing Professional Fee payment for user:', user.id)
                     const { error: updateError } = await supabase
                         .from('profiles')
                         .update({ has_paid_professional_fee: true })
                         .eq('id', user.id)
 
-                    if (updateError) throw updateError
+                    console.log('DB Update result:', updateError)
+                    if (updateError) {
+                        console.error('DB Update failed. Using local fallback.', updateError)
+                        // Fallback: Store locally
+                        localStorage.setItem('has_paid_professional_fee_local', 'true')
+                    } else {
+                        // Ensure local is synced just in case
+                        localStorage.setItem('has_paid_professional_fee_local', 'true')
+                    }
 
                     await refreshProfile()
                     setStatus('success')

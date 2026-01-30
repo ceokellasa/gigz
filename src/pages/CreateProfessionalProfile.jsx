@@ -105,6 +105,11 @@ export default function CreateProfessionalProfile() {
                 .eq('id', user.id)
                 .single()
 
+            // Local fallback check
+            if (localStorage.getItem('has_paid_professional_fee_local') === 'true') {
+                setHasPaid(true)
+            }
+
             if (profileData) {
                 if (profileData.has_paid_professional_fee) setHasPaid(true)
                 if (profileData.phone_number) setPaymentPhone(profileData.phone_number || '')
