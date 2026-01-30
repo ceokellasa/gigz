@@ -25,6 +25,20 @@ export default function SubscriptionSuccess() {
 
         const activateSubscription = async () => {
             try {
+                if (planId === 'professional_fee') {
+                    const { error: updateError } = await supabase
+                        .from('profiles')
+                        .update({ has_paid_professional_fee: true })
+                        .eq('id', user.id)
+
+                    if (updateError) throw updateError
+
+                    await refreshProfile()
+                    setStatus('success')
+                    toast.success('Payment successful! Professional profile unlocked.')
+                    return
+                }
+
                 // Get plan details from URL or default to 1_week
                 const plan = planId || '1_week'
 
@@ -93,10 +107,13 @@ export default function SubscriptionSuccess() {
                         </div>
                         <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Successful!</h2>
                         <p className="text-slate-600 mb-8">
-                            Note: The Contact Feature is Currently Unavailable But Will Be Available Soon
+                            {planId === 'professional_fee'
+                                ? 'Your professional account has been activated. You can now create your profile.'
+                                : 'Note: The Contact Feature is Currently Unavailable But Will Be Available Soon'
+                            }
                         </p>
-                        <Link to="/" className="btn-primary w-full block py-3">
-                            Back to Home
+                        <Link to={planId === 'professional_fee' ? '/professionals/create' : '/'} className="btn-primary w-full block py-3">
+                            {planId === 'professional_fee' ? 'Create Profile' : 'Back to Home'}
                         </Link>
                     </div>
                 )}

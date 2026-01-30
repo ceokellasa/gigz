@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { Save, Plus, X, Upload, Trash2, ChevronDown, Search, Check } from 'lucide-react'
+import { createPaymentSession, doPayment } from '../lib/cashfree'
+import { Save, Plus, X, Upload, Trash2, ChevronDown, Search, Check, CreditCard, Loader2 } from 'lucide-react'
 import clsx from 'clsx'
 import { PROFESSIONS } from '../constants/professions'
 
@@ -11,6 +12,7 @@ export default function CreateProfessionalProfile() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [existingProfile, setExistingProfile] = useState(null)
+    const [checkingProfile, setCheckingProfile] = useState(true)
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [dropdownSearch, setDropdownSearch] = useState('')
     const [isOtherSelected, setIsOtherSelected] = useState(false)
@@ -117,6 +119,21 @@ export default function CreateProfessionalProfile() {
             }
         } catch (error) {
             console.error('Error fetching profile:', error)
+        } finally {
+            setCheckingProfile(false)
+        }
+    }
+
+    const handlePayment = async () => {
+        setLoading(true)
+        try {
+            const plan = { id: 'professional_fee', price: 99, name: 'Professional Activation' }
+            const sessionId = await createPaymentSession(plan, user, profile)
+            await doPayment(sessionId)
+        } catch (error) {
+            console.error('Payment Error:', error)
+            alert('Payment failed: ' + error.message)
+            setLoading(false)
         }
     }
 
@@ -253,10 +270,41 @@ export default function CreateProfessionalProfile() {
         }))
     }
 
-    if (authLoading) {
+    if (authLoading || checkingProfile) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        )
+    }
+
+    // Payment Block Logic
+    if (!existingProfile && !profile?.has_paid_professional_fee) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
+                <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center border border-slate-200">
+                    <div className="h-16 w-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CreditCard className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Professional Activation</h2>
+                    <p className="text-slate-600 mb-6">
+                        To maintain quality and trust, we charge a one-time activation fee of <strong>₹99</strong> for professional profiles.
+                    </p>
+                    <button
+                        onClick={handlePayment}
+                        disabled={loading}
+                        className="w-full btn-primary py-3 flex items-center justify-center gap-2"
+                    >
+                        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <CreditCard className="h-5 w-5" />}
+                        Pay ₹99 to Unlock
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-4 text-slate-500 hover:text-slate-700 text-sm font-medium"
+                    >
+                        Cancel & Go Home
+                    </button>
+                </div>
             </div>
         )
     }

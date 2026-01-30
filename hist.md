@@ -52,6 +52,11 @@
 - **Searchable Dropdown:** Replaced simple select with a custom Searchable Dropdown in `CreateProfessionalProfile.jsx`.
 - **Custom Profession:** Added "Other" option allowing users to specify a profession not in the list.
 
+### H. Professional Activation Fee
+- **Monetization:** Implemented a ₹99 one-time fee to unlock professional profile creation.
+- **Payment Gate:** Integrated Cashfree payment flow; new users MUST pay to create a profile.
+- **Success Handling:** Updated `SubscriptionSuccess.jsx` to activate the professional account upon successful payment.
+
 ---
 
 ## 2. Database Migrations (SQL)
