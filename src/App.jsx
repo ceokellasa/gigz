@@ -32,6 +32,8 @@ const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const Professionals = lazy(() => import('./pages/Professionals'))
 const CreateProfessionalProfile = lazy(() => import('./pages/CreateProfessionalProfile'))
 const ProfessionalDetails = lazy(() => import('./pages/ProfessionalDetails'))
+const About = lazy(() => import('./pages/About'))
+const Privacy = lazy(() => import('./pages/Privacy'))
 
 function App() {
   return (
@@ -62,6 +64,8 @@ function App() {
                     <Route path="contact" element={<ContactUs />} />
                     <Route path="terms" element={<Terms />} />
                     <Route path="refunds" element={<Refunds />} />
+                    <Route path="about" element={<About />} />
+                    <Route path="privacy" element={<Privacy />} />
                     <Route path="admin" element={<AdminDashboard />} />
                     <Route path="email-verified" element={<EmailVerified />} />
                     <Route path="professionals" element={<Professionals />} />
@@ -79,6 +83,8 @@ function App() {
     </ErrorBoundary>
   )
 }
+
+
 
 // Simple 404 component
 function NotFound() {

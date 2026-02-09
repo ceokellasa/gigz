@@ -34,6 +34,154 @@ export function SkeletonAvatar({ size = 'md', className }) {
     return <Skeleton className={clsx('rounded-full', sizes[size], className)} />
 }
 
+// Home Page Skeleton
+export function HomePageSkeleton() {
+    return (
+        <div className="min-h-screen bg-white">
+            {/* Hero Skeleton */}
+            <div className="pt-20 pb-32">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <Skeleton className="h-8 w-64 mx-auto mb-8 rounded-full" />
+                    <Skeleton className="h-24 md:h-32 w-full max-w-4xl mx-auto mb-8" />
+                    <Skeleton className="h-6 w-full max-w-2xl mx-auto mb-12" />
+                    <div className="flex justify-center gap-4">
+                        <Skeleton className="h-14 w-40 rounded-full" />
+                        <Skeleton className="h-14 w-40 rounded-full" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Features Skeleton */}
+            <div className="py-32 bg-slate-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <Skeleton className="h-10 w-64 mx-auto mb-4" />
+                    <Skeleton className="h-6 w-96 mx-auto mb-20" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="bg-white p-10 rounded-[2.5rem]">
+                                <Skeleton className="h-16 w-16 mb-8 rounded-2xl" />
+                                <Skeleton className="h-8 w-3/4 mb-4" />
+                                <SkeletonText lines={3} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Professionals Page Skeleton
+export function ProfessionalsPageSkeleton() {
+    return (
+        <div className="min-h-screen bg-slate-50">
+            {/* Hero Skeleton */}
+            <div className="bg-white pt-20 pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <Skeleton className="h-12 md:h-16 w-full max-w-3xl mx-auto mb-6" />
+                    <Skeleton className="h-6 w-full max-w-2xl mx-auto mb-8" />
+                    <Skeleton className="h-12 w-full max-w-md mx-auto rounded-full" />
+                </div>
+            </div>
+
+            {/* Filters and Cards */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <Skeleton className="h-16 w-full mb-8 rounded-2xl" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                        <div key={i} className="bg-white p-6 rounded-[2rem]">
+                            <div className="flex items-start gap-4 mb-4">
+                                <SkeletonAvatar size="lg" />
+                                <div className="flex-1">
+                                    <Skeleton className="h-6 w-3/4 mb-2" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                </div>
+                            </div>
+                            <SkeletonText lines={2} className="mb-4" />
+                            <div className="flex gap-2 mb-4">
+                                <Skeleton className="h-6 w-20 rounded-full" />
+                                <Skeleton className="h-6 w-24 rounded-full" />
+                            </div>
+                            <Skeleton className="h-10 w-full rounded-full" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// About Page Skeleton
+export function AboutPageSkeleton() {
+    return (
+        <div className="min-h-screen bg-white">
+            <div className="pt-32 pb-20">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <Skeleton className="h-8 w-48 mx-auto mb-8 rounded-full" />
+                    <Skeleton className="h-16 md:h-20 w-full mb-8" />
+                    <Skeleton className="h-6 w-full max-w-3xl mx-auto" />
+                </div>
+            </div>
+            <div className="py-20 bg-slate-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="bg-white p-10 rounded-[2.5rem]">
+                                <Skeleton className="h-16 w-16 mb-6 rounded-2xl" />
+                                <Skeleton className="h-8 w-3/4 mb-4" />
+                                <SkeletonText lines={3} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Privacy Page Skeleton
+export function PrivacyPageSkeleton() {
+    return (
+        <div className="min-h-screen bg-white">
+            <div className="pt-32 pb-20 bg-slate-50">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <Skeleton className="h-8 w-48 mx-auto mb-8 rounded-full" />
+                    <Skeleton className="h-16 w-full mb-6" />
+                    <Skeleton className="h-6 w-64 mx-auto" />
+                </div>
+            </div>
+            <div className="py-20">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="bg-slate-50 p-8 rounded-[2rem]">
+                            <Skeleton className="h-8 w-64 mb-4" />
+                            <SkeletonText lines={4} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Auth Page Skeleton
+export function AuthPageSkeleton() {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+            <div className="w-full max-w-md">
+                <div className="bg-white p-8 rounded-[2rem] shadow-soft">
+                    <Skeleton className="h-10 w-48 mx-auto mb-8" />
+                    <div className="space-y-4">
+                        <Skeleton className="h-12 w-full rounded-2xl" />
+                        <Skeleton className="h-12 w-full rounded-2xl" />
+                        <Skeleton className="h-12 w-full rounded-full" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // Gig Card Skeleton
 export function GigCardSkeleton() {
     return (
@@ -128,8 +276,8 @@ export function PageLoadingSkeleton() {
     return (
         <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-                <p className="mt-4 text-slate-500">Loading...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 mx-auto"></div>
+                <p className="mt-4 text-slate-500 font-medium">Loading...</p>
             </div>
         </div>
     )

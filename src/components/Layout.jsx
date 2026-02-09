@@ -1,9 +1,8 @@
-import { Fragment } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Menu as MenuIcon, X, User, LogOut, Briefcase, PlusCircle, Search, MessageSquare, ShieldAlert, Users, Receipt } from 'lucide-react'
+import { Disclosure } from '@headlessui/react'
+import { Briefcase, PlusCircle, Search, MessageSquare, Sparkles } from 'lucide-react'
 import clsx from 'clsx'
 import BroadcastListener from './BroadcastListener'
 
@@ -11,6 +10,7 @@ export default function Layout() {
     const { user, profile, signOut, unreadCount } = useAuth()
     const { settings } = useSettings()
     const navigate = useNavigate()
+    const location = useLocation()
 
     const handleSignOut = async () => {
         await signOut()
@@ -18,189 +18,86 @@ export default function Layout() {
     }
 
     const navigation = [
-        { name: 'Home', href: '/', current: true },
-        { name: 'Post a Gig', href: '/post-gig', current: false },
-        { name: 'Find Work', href: '/gigs', current: false },
-        { name: 'Find Professionals', href: '/professionals', current: false },
+        { name: 'Home', href: '/', current: location.pathname === '/' },
+        { name: 'Post a Gig', href: '/post-gig', current: location.pathname === '/post-gig' },
+        { name: 'Find Work', href: '/gigs', current: location.pathname === '/gigs' },
+        { name: 'Find Professionals', href: '/professionals', current: location.pathname === '/professionals' },
     ]
 
     if (user) {
-        navigation.push({ name: 'Profile', href: '/profile', current: false })
+        navigation.push({ name: 'Profile', href: '/profile', current: location.pathname === '/profile' })
     }
 
+    // Hide Layout footer on Home since Home has its own
+    const isHome = location.pathname === '/'
+
     return (
-        <div className="min-h-screen font-sans bg-transparent flex flex-col pb-28 md:pb-0">
+        <div className="min-h-screen font-sans flex flex-col pb-28 md:pb-0 relative">
             <BroadcastListener />
-            <div className="fixed inset-0 -z-10 bg-slate-50"></div>
-            <Disclosure as="nav" className="sticky top-0 md:top-4 z-50 md:max-w-7xl md:mx-auto md:px-4 sm:px-6 lg:px-8 w-full">
+
+            {/* Navbar */}
+            <Disclosure as="nav" className="sticky top-0 z-50 w-full">
                 {({ open }) => (
-                    <div className="bg-white md:glass-panel md:rounded-2xl md:mt-4 border-b md:border-b-0 border-slate-200">
-                        <div className="flex justify-between h-auto py-3 md:py-4 px-4 sm:px-6 lg:px-8">
-                            <div className="flex">
-                                <div className="flex-shrink-0 flex items-center">
-                                    <Link to="/" className="flex items-center gap-2">
-                                        <span className="font-sans font-bold text-2xl md:text-3xl tracking-tight text-slate-900 uppercase py-2">
-                                            KELLASA
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div className="hidden sm:ml-8 sm:flex sm:space-x-8">
-                                    {navigation.map((item) => (
-                                        <Link
-                                            key={item.name}
-                                            to={item.href}
-                                            className={clsx(
-                                                item.current
-                                                    ? 'border-indigo-500 text-slate-900'
-                                                    : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700',
-                                                'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors'
-                                            )}
-                                        >
-                                            {item.name}
+                    <div className={clsx(
+                        "w-full transition-all duration-300 border-b",
+                        open ? "bg-white border-slate-200" : "bg-white/80 backdrop-blur-xl border-white/50 supports-[backdrop-filter]:bg-white/60"
+                    )}>
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between h-20">
+                                <div className="flex">
+                                    <div className="flex-shrink-0 flex items-center">
+                                        <Link to="/" className="flex items-center group">
+                                            <span className="font-bold text-2xl tracking-tighter text-slate-900">
+                                                KELLASA
+                                            </span>
                                         </Link>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="flex ml-6 items-center gap-4">
-                                {user ? (
-                                    <Menu as="div" className="ml-3 relative">
-                                        <div>
-                                            <Menu.Button className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ring-offset-slate-50 relative">
-                                                <span className="sr-only">Open user menu</span>
-                                                <div className="h-9 w-9 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-md">
-                                                    {profile?.avatar_url ? (
-                                                        <img src={profile.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover" />
-                                                    ) : (
-                                                        <span className="font-semibold text-sm">{profile?.full_name?.[0] || user.email[0].toUpperCase()}</span>
-                                                    )}
-                                                </div>
-                                                {unreadCount > 0 && (
-                                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-sm border border-white">
-                                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                                    </span>
-                                                )}
-                                            </Menu.Button>
-                                        </div>
-                                        <Transition
-                                            as={Fragment}
-                                            enter="transition ease-out duration-200"
-                                            enterFrom="transform opacity-0 scale-95"
-                                            enterTo="transform opacity-100 scale-100"
-                                            leave="transition ease-in duration-75"
-                                            leaveFrom="transform opacity-100 scale-100"
-                                            leaveTo="transform opacity-0 scale-95"
-                                        >
-                                            <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                <div className="px-4 py-2 border-b border-slate-100">
-                                                    <p className="text-sm font-medium text-slate-900 truncate">{profile?.full_name || 'User'}</p>
-                                                    <p className="text-xs text-slate-500 truncate">{user.email}</p>
-                                                </div>
-                                                <Menu.Item>
-                                                    {({ active }) => (
-                                                        <Link
-                                                            to="/messages"
-                                                            className={clsx(
-                                                                active ? 'bg-slate-50' : '',
-                                                                'block w-full text-left px-4 py-2 text-sm text-slate-700 flex items-center gap-2 justify-between'
-                                                            )}
-                                                        >
-                                                            <div className="flex items-center gap-2">
-                                                                <MessageSquare className="h-4 w-4" />
-                                                                Messages
-                                                            </div>
-                                                            {unreadCount > 0 && (
-                                                                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                                                    {unreadCount}
-                                                                </span>
-                                                            )}
-                                                        </Link>
-                                                    )}
-                                                </Menu.Item>
-                                                <Menu.Item>
-                                                    {({ active }) => (
-                                                        <Link
-                                                            to="/profile"
-                                                            className={clsx(
-                                                                active ? 'bg-slate-50' : '',
-                                                                'block w-full text-left px-4 py-2 text-sm text-slate-700 flex items-center gap-2'
-                                                            )}
-                                                        >
-                                                            <User className="h-4 w-4" />
-                                                            Your Profile
-                                                        </Link>
-                                                    )}
-                                                </Menu.Item>
-                                                <Menu.Item>
-                                                    {({ active }) => (
-                                                        <Link
-                                                            to="/payments"
-                                                            className={clsx(
-                                                                active ? 'bg-slate-50' : '',
-                                                                'block w-full text-left px-4 py-2 text-sm text-slate-700 flex items-center gap-2'
-                                                            )}
-                                                        >
-                                                            <Receipt className="h-4 w-4" />
-                                                            Payments
-                                                        </Link>
-                                                    )}
-                                                </Menu.Item>
-                                                {user?.email === 'nsjdfmjr@gmail.com' && (
-                                                    <Menu.Item>
-                                                        {({ active }) => (
-                                                            <Link
-                                                                to="/admin"
-                                                                className={clsx(
-                                                                    active ? 'bg-slate-50' : '',
-                                                                    'block w-full text-left px-4 py-2 text-sm text-slate-700 flex items-center gap-2 font-medium text-indigo-600'
-                                                                )}
-                                                            >
-                                                                <ShieldAlert className="h-4 w-4" />
-                                                                Admin Dashboard
-                                                            </Link>
-                                                        )}
-                                                    </Menu.Item>
-                                                )}
-                                                <Menu.Item>
-                                                    {({ active }) => (
-                                                        <a
-                                                            href="mailto:helpatkelasa@gmail.com"
-                                                            className={clsx(
-                                                                active ? 'bg-slate-50' : '',
-                                                                'block w-full text-left px-4 py-2 text-sm text-slate-700 flex items-center gap-2'
-                                                            )}
-                                                        >
-                                                            <div className="flex items-center gap-2 w-full">
-                                                                <span className="flex-grow">help@kellasa.com</span>
-                                                                <span className="bg-indigo-100 text-indigo-600 text-[10px] px-1.5 py-0.5 rounded font-medium">Support</span>
-                                                            </div>
-                                                        </a>
-                                                    )}
-                                                </Menu.Item>
-                                                <Menu.Item>
-                                                    {({ active }) => (
-                                                        <button
-                                                            onClick={handleSignOut}
-                                                            className={clsx(
-                                                                active ? 'bg-slate-50' : '',
-                                                                'block w-full text-left px-4 py-2 text-sm text-slate-700 flex items-center gap-2'
-                                                            )}
-                                                        >
-                                                            <LogOut className="h-4 w-4" />
-                                                            Sign out
-                                                        </button>
-                                                    )}
-                                                </Menu.Item>
-                                            </Menu.Items>
-                                        </Transition>
-                                    </Menu>
-                                ) : (
-                                    <div className="flex gap-4 items-center">
-                                        <Link to="/login" className="text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors">Log in</Link>
-                                        <Link to="/signup" className="btn-primary text-sm">Sign up</Link>
                                     </div>
-                                )}
+                                    <div className="hidden sm:ml-10 sm:flex sm:space-x-8">
+                                        {navigation.map((item) => (
+                                            <Link
+                                                key={item.name}
+                                                to={item.href}
+                                                className={clsx(
+                                                    item.current
+                                                        ? 'border-black text-black'
+                                                        : 'border-transparent text-slate-500 hover:text-black hover:border-slate-300',
+                                                    'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-bold transition-all duration-200'
+                                                )}
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex ml-6 items-center gap-4">
+                                    {user ? (
+                                        <Link to="/profile" className="relative hover:scale-105 transition-transform duration-200">
+                                            <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+                                                {profile?.avatar_url ? (
+                                                    <img src={profile.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
+                                                ) : (
+                                                    <span className="font-bold text-slate-900">{profile?.full_name?.[0] || user.email[0].toUpperCase()}</span>
+                                                )}
+                                            </div>
+                                            {unreadCount > 0 && (
+                                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-sm ring-2 ring-white">
+                                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                                </span>
+                                            )}
+                                        </Link>
+                                    ) : (
+                                        <div className="flex gap-4 items-center">
+                                            <Link to="/login" className="text-slate-600 hover:text-black font-bold text-sm transition-colors">Log in</Link>
+                                            <Link to="/signup" className="btn-primary rounded-full px-6 py-2.5 text-sm h-auto shadow-none hover:shadow-lg">Sign up</Link>
+                                        </div>
+                                    )}
+                                </div>
+
+
                             </div>
                         </div>
+
                     </div>
                 )}
             </Disclosure>
@@ -211,50 +108,71 @@ export default function Layout() {
                 </main>
             </div>
 
-            <footer className="glass-panel mt-auto border-t-0 rounded-t-2xl mx-4 mb-4 hidden md:block">
-                <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
-                    <div className="flex justify-center space-x-6 md:order-2">
-                        <Link to="/contact" className="text-slate-400 hover:text-slate-500">Contact Us</Link>
-                        <Link to="/terms" className="text-slate-400 hover:text-slate-500">Terms</Link>
-                        <Link to="/refunds" className="text-slate-400 hover:text-slate-500">Refunds</Link>
+            {/* Branded Footer Section - "Live it up!" style */}
+            <section className="bg-slate-50 py-20 md:py-32 mt-auto">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-6xl md:text-8xl lg:text-9xl font-black text-slate-200 leading-none tracking-tight">
+                        Work
+                        <br />
+                        your way!
+                    </h2>
+                    <p className="mt-6 text-lg md:text-xl text-slate-500 font-medium flex items-center justify-center gap-2">
+                        Built with <span className="text-red-500 text-2xl">❤️</span> for professionals everywhere
+                    </p>
+                </div>
+            </section>
+
+            <footer className="bg-white border-t border-slate-100 py-12 md:pb-12 pb-32">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-black text-white p-1.5 rounded-lg">
+                            <Sparkles className="h-4 w-4" />
+                        </div>
+                        <span className="text-lg font-bold tracking-tight text-slate-900">KELLASA</span>
                     </div>
-                    <div className="mt-8 md:mt-0 md:order-1">
-                        <p className="text-center text-base text-slate-400">
-                            {settings.footer_text || '© 2026 Kelasa, Inc. All rights reserved.'}
-                        </p>
+                    <div className="flex gap-8">
+                        <Link to="/contact" className="text-sm font-bold text-slate-400 hover:text-black transition-colors">Contact</Link>
+                        <Link to="/terms" className="text-sm font-bold text-slate-400 hover:text-black transition-colors">Terms</Link>
+                        <Link to="/refunds" className="text-sm font-bold text-slate-400 hover:text-black transition-colors">Refunds</Link>
                     </div>
+                    <p className="text-sm text-slate-400 font-medium">© 2026 Kellasa Inc. All rights reserved. Crafted by <span className="hover:text-slate-900 transition-colors cursor-pointer">Marzookk411</span></p>
                 </div>
             </footer>
 
-
-            {/* Mobile Bottom Navigation - Floating Capsule Style */}
+            {/* Mobile Bottom Navigation - Floating Capsule */}
             <div className="md:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center pb-safe pointer-events-none">
-                <div className="bg-gradient-to-b from-white/40 to-white/20 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-2xl shadow-black/10 rounded-full px-6 py-3.5 flex justify-between items-center w-[90%] max-w-[380px] pointer-events-auto ring-1 ring-white/40">
-                    <Link to="/" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                <div className="bg-black/90 backdrop-blur-xl border border-white/10 shadow-float-lg rounded-full px-6 py-4 flex justify-between items-center w-[85%] max-w-[350px] pointer-events-auto">
+                    <Link to="/" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname === '/' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
+                        <Sparkles className="h-6 w-6" />
                     </Link>
 
-                    <Link to="/gigs" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
+                    <Link to="/gigs" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname === '/gigs' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
                         <Briefcase className="h-6 w-6" />
                     </Link>
 
-                    <Link to="/post-gig" className="relative -top-7 transition-transform hover:scale-105 active:scale-95">
-                        <div className="bg-slate-900 p-4 rounded-full shadow-lg shadow-slate-900/40 text-white ring-4 ring-white">
+                    <Link to="/post-gig" className="relative -top-8">
+                        <div className="bg-[#FACC15] p-4 rounded-full shadow-lg shadow-yellow-500/20 text-black ring-4 ring-white ring-opacity-10 transform transition-transform hover:scale-110 active:scale-95">
                             <PlusCircle className="h-7 w-7" />
                         </div>
                     </Link>
 
-                    <Link to="/messages" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative p-1.5">
+                    <Link to="/messages" className={clsx("flex flex-col items-center gap-1 transition-colors relative", location.pathname === '/messages' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
                         <MessageSquare className="h-6 w-6" />
                         {unreadCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-sm ring-2 ring-white">
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center border-2 border-black">
                                 {unreadCount > 9 ? '9+' : unreadCount}
                             </span>
                         )}
                     </Link>
 
-                    <Link to="/professionals" className="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors p-1.5">
-                        <Users className="h-6 w-6" />
+                    <Link to="/profile" className={clsx("flex flex-col items-center gap-1 transition-colors relative", location.pathname === '/profile' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
+                        <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                            {profile?.avatar_url ? (
+                                <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+                            ) : (
+                                <span className="text-[10px] font-bold">{profile?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}</span>
+                            )}
+                        </div>
                     </Link>
                 </div>
             </div>

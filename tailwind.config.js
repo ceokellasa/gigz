@@ -7,40 +7,46 @@ export default {
     theme: {
         extend: {
             colors: {
+                // Vibe Palette: Clean, Minimalist, High Contrast
+                primary: '#111827', // Deep Black for text/buttons
+                secondary: '#ffffff', // Pure White
+                accent: '#FACC15', // Vibrant Yellow for pops of color
+                'accent-hover': '#EAB308',
+
+                // Neutral Grays for clean UI
+                slate: {
+                    50: '#f9fafb', // Main Background
+                    100: '#f3f4f6', // Secondary Background
+                    200: '#e5e7eb', // Borders
+                    300: '#d1d5db',
+                    400: '#9ca3af',
+                    500: '#6b7280', // Secondary Text
+                    600: '#4b5563',
+                    700: '#374151',
+                    800: '#1f2937',
+                    900: '#111827', // Primary Text
+                    950: '#030712',
+                },
+
+                // Keeping some indigo/purple just in case, but muting them
                 indigo: {
                     50: '#eef2ff',
-                    100: '#e0e7ff',
-                    200: '#c7d2fe',
-                    300: '#a5b4fc',
-                    400: '#818cf8',
                     500: '#6366f1',
-                    600: '#4f46e5', // Deep Indigo
-                    700: '#4338ca',
-                    800: '#3730a3',
-                    900: '#312e81',
-                    950: '#1e1b4b',
-                },
-                slate: {
-                    50: '#f8fafc',
-                    100: '#f1f5f9',
-                    200: '#e2e8f0',
-                    300: '#cbd5e1',
-                    400: '#94a3b8',
-                    500: '#64748b',
-                    600: '#475569',
-                    700: '#334155',
-                    800: '#1e293b',
-                    900: '#0f172a', // Slate
-                    950: '#020617',
-                },
-                primary: '#000000',
-                secondary: '#ffffff',
-                accent: '#8b5cf6', // Indigo/Purple
-                'accent-pink': '#ec4899', // Pink
+                    600: '#4f46e5',
+                }
             },
             fontFamily: {
-                sans: ['Outfit', 'sans-serif'],
+                sans: ['Outfit', 'Inter', 'sans-serif'], // Keep Outfit for that modern feel
             },
+            boxShadow: {
+                'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                'card': '0 10px 40px -10px rgba(0, 0, 0, 0.05)',
+                'floating': '0 20px 50px -12px rgba(0, 0, 0, 0.1)',
+            },
+            borderRadius: {
+                '4xl': '2rem',
+                '5xl': '2.5rem',
+            }
         },
     },
     plugins: [],

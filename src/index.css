@@ -3,44 +3,60 @@
 @tailwind utilities;
 
 :root {
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --primary-color: #111827;
+  --accent-color: #FACC15;
 }
 
 body {
   @apply bg-slate-50 text-slate-900 font-sans antialiased;
-  background-image:
-    radial-gradient(at 40% 20%, rgba(226, 232, 240, 0.4) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, rgba(238, 242, 255, 0.4) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, rgba(241, 245, 249, 0.4) 0px, transparent 50%);
-  background-attachment: fixed;
+  /* Clean light background without complex gradients */
+  background-color: #F9FAFB;
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-white/90 backdrop-blur-xl border border-white/50 shadow-2xl ring-1 ring-black/5;
+    @apply bg-white/80 backdrop-blur-xl border border-white/60;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   }
 
   .glass-card {
-    @apply bg-white border border-slate-100 shadow-sm rounded-2xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-slate-200;
+    @apply bg-white border border-slate-100/50 rounded-[2rem] transition-all duration-300 hover:-translate-y-1;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
   }
 
+  .glass-card:hover {
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* "Vibe" Buttons: Black pill shape or White with border */
   .btn-primary {
-    @apply inline-flex justify-center items-center py-3.5 px-8 border border-transparent rounded-xl shadow-lg shadow-indigo-500/20 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all duration-200 transform hover:scale-[1.02];
+    @apply inline-flex justify-center items-center py-4 px-8 border border-transparent rounded-full shadow-lg shadow-slate-900/10 text-sm font-bold text-white bg-slate-900 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all duration-300 transform hover:scale-105;
   }
 
   .btn-secondary {
-    @apply inline-flex justify-center items-center py-3.5 px-8 border border-slate-200 rounded-xl shadow-sm text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-200 transition-all duration-200;
+    @apply inline-flex justify-center items-center py-4 px-8 border-2 border-slate-200 rounded-full text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-200 transition-all duration-300;
+  }
+
+  .btn-accent {
+    @apply inline-flex justify-center items-center py-4 px-8 border border-transparent rounded-full shadow-lg shadow-yellow-500/20 text-sm font-bold text-slate-900 bg-[#FACC15] hover:bg-[#EAB308] transition-all duration-300 transform hover:scale-105;
   }
 
   .input-field {
-    @apply block w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4 transition-all duration-200 hover:border-slate-300;
+    @apply block w-full rounded-2xl border-slate-200 bg-white shadow-sm focus:border-black focus:ring-black sm:text-sm py-4 px-5 transition-all duration-200 hover:border-slate-300;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600;
+    @apply text-slate-900;
+    /* No more text gradient, just bold black */
+  }
+
+  /* Utilities for the Vibe */
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1;
+  }
+
+  .card-hover:hover {
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -82,4 +98,120 @@ body {
 
 .animate-float-delayed {
   animation: float 6s ease-in-out 3s infinite;
+}
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-card {
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-floating {
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* 3D Floating Elements */
+@keyframes float3d {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+  }
+
+  25% {
+    transform: translateY(-20px) rotateX(5deg) rotateY(5deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotateX(-5deg) rotateY(10deg);
+  }
+
+  75% {
+    transform: translateY(-15px) rotateX(5deg) rotateY(-5deg);
+  }
+}
+
+@keyframes float3d-delayed {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotateX(0deg) rotateZ(0deg);
+  }
+
+  33% {
+    transform: translateY(-15px) rotateX(-5deg) rotateZ(3deg);
+  }
+
+  66% {
+    transform: translateY(-25px) rotateX(5deg) rotateZ(-3deg);
+  }
+}
+
+@keyframes spin3d {
+  0% {
+    transform: rotateY(0deg) rotateX(0deg);
+  }
+
+  100% {
+    transform: rotateY(360deg) rotateX(360deg);
+  }
+}
+
+@keyframes pulse3d {
+
+  0%,
+  100% {
+    transform: scale(1) translateZ(0);
+  }
+
+  50% {
+    transform: scale(1.05) translateZ(20px);
+  }
+}
+
+.animate-float3d {
+  animation: float3d 8s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-float3d-delayed {
+  animation: float3d-delayed 10s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-spin3d {
+  animation: spin3d 20s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-pulse3d {
+  animation: pulse3d 4s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+/* Typewriter cursor */
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background-color: currentColor;
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
 }
