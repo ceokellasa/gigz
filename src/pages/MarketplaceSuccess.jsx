@@ -15,9 +15,23 @@ export default function MarketplaceSuccess() {
     const productId = searchParams.get('product_id')
 
     useEffect(() => {
+        console.log('MarketplaceSuccess - Debug Info:', {
+            orderId,
+            productId,
+            user: user?.id,
+            hasUser: !!user
+        })
+
+        // Wait for auth to load
+        if (user === undefined) {
+            console.log('Waiting for auth to load...')
+            return
+        }
+
         if (!orderId || !productId || !user) {
             setStatus('failed')
             setError('Invalid Order, Product ID, or User not logged in')
+            console.error('Missing required data:', { orderId, productId, hasUser: !!user })
             return
         }
 

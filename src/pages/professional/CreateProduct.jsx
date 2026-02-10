@@ -28,27 +28,45 @@ export default function CreateProduct() {
         bank_name: ''
     })
 
+    // Professional Status State
+    const [isProfessional, setIsProfessional] = useState(false)
+    const [checkingProfessional, setCheckingProfessional] = useState(true)
+
     useEffect(() => {
         if (user) {
-            fetchBankDetails()
+            checkProfessionalStatus()
         }
     }, [user])
 
-    const fetchBankDetails = async () => {
+    const checkProfessionalStatus = async () => {
         try {
+            console.log('Checking professional status for user:', user.id)
+
+            // Check if professional_profiles record exists
             const { data, error } = await supabase
                 .from('professional_profiles')
-                .select('bank_details')
-                .eq('id', user.id)
-                .single()
+                .select('id, user_id, bank_details')
+                .eq('user_id', user.id)  // Changed from 'id' to 'user_id'
+                .maybeSingle()
 
-            if (data?.bank_details) {
-                setBankDetails(data.bank_details)
+            console.log('Professional query result:', { data, error })
+
+            if (data) {
+                console.log('✅ Professional account found!')
+                setIsProfessional(true)
+                if (data.bank_details) {
+                    setBankDetails(data.bank_details)
+                }
+            } else {
+                console.log('❌ No professional account found')
+                setIsProfessional(false)
             }
         } catch (err) {
-            console.error('Error fetching bank details:', err)
+            console.error('Error checking professional status:', err)
+            setIsProfessional(false)
         } finally {
             setFetchingBank(false)
+            setCheckingProfessional(false)
         }
     }
 
@@ -59,7 +77,7 @@ export default function CreateProduct() {
             const { error } = await supabase
                 .from('professional_profiles')
                 .update({ bank_details: bankForm })
-                .eq('id', user.id)
+                .eq('user_id', user.id)  // Changed from 'id' to 'user_id'
 
             if (error) throw error
 
@@ -103,7 +121,7 @@ export default function CreateProduct() {
 
             // Insert Record
             const { error: insertError } = await supabase.from('digital_products').insert({
-                professional_id: profile.id,
+                professional_id: user.id,
                 title: formData.title,
                 description: formData.description,
                 price: parseFloat(formData.price),
@@ -124,20 +142,26 @@ export default function CreateProduct() {
         }
     }
 
-    if (!profile) return null
+    if (checkingProfessional) {
+        return (
+            <div className="min-h-[60vh] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        )
+    }
 
-    if (profile.role !== 'professional') {
+    if (!isProfessional) {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
                 <div className="bg-amber-50 rounded-2xl p-8 max-w-md text-center border border-amber-100">
                     <Lock className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-                    <h2 className="text-xl font-bold text-slate-900 mb-2">Professional Access Only</h2>
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">Professional Account Required</h2>
                     <p className="text-slate-600 mb-6">
-                        Selling digital products is exclusive to professional accounts.
-                        Upgrade your profile to start earning.
+                        You need a professional account to sell digital products.
+                        Create a professional profile to start earning.
                     </p>
                     <Link to="/subscription" className="btn-primary w-full block py-3">
-                        Upgrade to Professional
+                        Create Professional Account
                     </Link>
                 </div>
             </div>
