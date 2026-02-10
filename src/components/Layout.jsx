@@ -146,6 +146,8 @@ export default function Layout() {
                         <Sparkles className="h-6 w-6" />
                     </Link>
 
+
+
                     <Link to="/gigs" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname === '/gigs' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
                         <Briefcase className="h-6 w-6" />
                     </Link>
@@ -165,14 +167,8 @@ export default function Layout() {
                         )}
                     </Link>
 
-                    <Link to="/profile" className={clsx("flex flex-col items-center gap-1 transition-colors relative", location.pathname === '/profile' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
-                            {profile?.avatar_url ? (
-                                <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
-                            ) : (
-                                <span className="text-[10px] font-bold">{profile?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}</span>
-                            )}
-                        </div>
+                    <Link to="/professionals" className={clsx("flex flex-col items-center gap-1 transition-colors relative", location.pathname === '/professionals' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
+                        <Search className="h-6 w-6" />
                     </Link>
                 </div>
             </div>

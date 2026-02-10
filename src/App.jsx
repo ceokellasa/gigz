@@ -6,6 +6,7 @@ import { ToastProvider } from './components/Toast'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Layout from './components/Layout'
 import { PageLoadingSkeleton } from './components/Skeleton'
+import ScrollToTop from './components/ScrollToTop'
 import TestMaps from './pages/TestMaps'
 
 // Lazy load pages for better performance
@@ -42,6 +43,7 @@ function App() {
         <SettingsProvider>
           <ToastProvider>
             <Router>
+              <ScrollToTop />
               <Suspense fallback={<PageLoadingSkeleton />}>
                 <Routes>
                   <Route path="/" element={<Layout />}>
