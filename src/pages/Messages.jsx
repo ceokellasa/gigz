@@ -153,6 +153,11 @@ export default function Messages() {
         const initChat = async () => {
             const mode = searchParams.get('mode')
             const recipientId = searchParams.get('userId')
+            const initialMsg = searchParams.get('message')
+
+            if (initialMsg) {
+                setNewMessage(initialMsg)
+            }
 
             if (user && !loading) {
                 if (mode === 'support') {

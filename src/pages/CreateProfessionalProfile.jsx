@@ -47,6 +47,10 @@ export default function CreateProfessionalProfile() {
     const [newWorkFile, setNewWorkFile] = useState(null)
     const [uploading, setUploading] = useState(false)
 
+    // Services State
+    const [services, setServices] = useState([])
+    const [newService, setNewService] = useState({ title: '', description: '', price: '', delivery_time_days: '' })
+
     const uploadImage = async (file) => {
         if (!file) return null
 
@@ -146,6 +150,16 @@ export default function CreateProfessionalProfile() {
                 if (data.profession && !PROFESSIONS.includes(data.profession)) {
                     setIsOtherSelected(true)
                 }
+
+                // Fetch Services
+                const { data: servicesData } = await supabase
+                    .from('professional_services')
+                    .select('*')
+                    .eq('professional_id', data.id)
+
+                if (servicesData) {
+                    setServices(servicesData)
+                }
             }
         } catch (error) {
             console.error('Error fetching profile:', error)
@@ -214,6 +228,8 @@ export default function CreateProfessionalProfile() {
                 project_rate_max: formData.project_rate_max ? parseFloat(formData.project_rate_max) : null,
             }
 
+            let profileId = existingProfile?.id
+
             if (existingProfile) {
                 // Update existing profile
                 const { error } = await supabase
@@ -222,17 +238,42 @@ export default function CreateProfessionalProfile() {
                     .eq('user_id', user.id)
 
                 if (error) throw error
-                alert('Profile updated successfully!')
             } else {
                 // Create new profile
-                const { error } = await supabase
+                const { data: newProfile, error } = await supabase
                     .from('professional_profiles')
                     .insert([profileData])
+                    .select()
+                    .single()
 
                 if (error) throw error
-                alert('Profile created successfully!')
+                profileId = newProfile.id
             }
 
+            // Save Services
+            if (profileId) {
+                // First delete existing services (simplest sync strategy)
+                await supabase.from('professional_services').delete().eq('professional_id', profileId)
+
+                // Insert current services
+                if (services.length > 0) {
+                    const servicesToInsert = services.map(s => ({
+                        professional_id: profileId,
+                        title: s.title,
+                        description: s.description || '',
+                        price: parseFloat(s.price),
+                        delivery_time_days: parseInt(s.delivery_time_days) || 1
+                    }))
+
+                    const { error: servicesError } = await supabase
+                        .from('professional_services')
+                        .insert(servicesToInsert)
+
+                    if (servicesError) throw servicesError
+                }
+            }
+
+            alert('Profile saved successfully!')
             navigate('/professionals')
         } catch (error) {
             console.error('Error saving profile:', error)
@@ -307,6 +348,17 @@ export default function CreateProfessionalProfile() {
             ...prev,
             previous_works: prev.previous_works.filter((_, i) => i !== index)
         }))
+    }
+
+    const addService = () => {
+        if (newService.title && newService.price) {
+            setServices(prev => [...prev, newService])
+            setNewService({ title: '', description: '', price: '', delivery_time_days: '' })
+        }
+    }
+
+    const removeService = (index) => {
+        setServices(prev => prev.filter((_, i) => i !== index))
     }
 
     if (authLoading || checkingProfile) {
@@ -649,6 +701,80 @@ export default function CreateProfessionalProfile() {
                                 step="0.01"
                             />
                         </div>
+                    </div>
+                </div>
+
+                {/* Service Packages */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h2 className="text-xl font-bold text-slate-900 mb-4">Service Packages (Fixed Price)</h2>
+                    <p className="text-sm text-slate-500 mb-6">Create specific packages for clients to book instantly.</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input
+                            type="text"
+                            value={newService.title}
+                            onChange={(e) => setNewService(prev => ({ ...prev, title: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Package Title (e.g., Basic Cleaning)"
+                        />
+                        <input
+                            type="number"
+                            value={newService.price}
+                            onChange={(e) => setNewService(prev => ({ ...prev, price: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Price (₹)"
+                            min="0"
+                        />
+                        <input
+                            type="number"
+                            value={newService.delivery_time_days}
+                            onChange={(e) => setNewService(prev => ({ ...prev, delivery_time_days: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Delivery Time (Days)"
+                            min="1"
+                        />
+                        <input
+                            type="text"
+                            value={newService.description}
+                            onChange={(e) => setNewService(prev => ({ ...prev, description: e.target.value }))}
+                            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent md:col-span-2"
+                            placeholder="Description of what's included..."
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={addService}
+                        disabled={!newService.title || !newService.price}
+                        className="mb-6 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                    >
+                        <Plus className="h-4 w-4 inline mr-2" />
+                        Add Service Package
+                    </button>
+
+                    <div className="space-y-3">
+                        {services.map((service, idx) => (
+                            <div key={idx} className="flex items-start justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                <div>
+                                    <h4 className="font-bold text-slate-900">{service.title}</h4>
+                                    <p className="text-sm text-slate-500">{service.description}</p>
+                                    <div className="flex gap-4 mt-2 text-xs font-bold text-slate-600">
+                                        <span>₹{service.price}</span>
+                                        <span>•</span>
+                                        <span>{service.delivery_time_days} Days Delivery</span>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeService(idx)}
+                                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                >
+                                    <Trash2 className="h-5 w-5" />
+                                </button>
+                            </div>
+                        ))}
+                        {services.length === 0 && (
+                            <p className="text-center text-slate-400 text-sm italic py-4">No service packages added yet.</p>
+                        )}
                     </div>
                 </div>
 

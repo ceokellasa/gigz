@@ -6,14 +6,16 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Search, MapPin, Star, Briefcase, DollarSign, User, Filter, Share2, Sparkles, ArrowRight } from 'lucide-react'
+import { Search, MapPin, Star, Briefcase, DollarSign, User, Filter, Share2, Sparkles, ArrowRight, List, Map } from 'lucide-react'
 import { useToast } from '../components/Toast'
 import { ProfessionalsPageSkeleton } from '../components/Skeleton'
+import ProfessionalsMap from '../components/ProfessionalsMap'
 
 export default function Professionals() {
     // State for storing the list of professionals and UI states
     const [professionals, setProfessionals] = useState([])
     const [loading, setLoading] = useState(true)
+    const [viewMode, setViewMode] = useState('list') // 'list' or 'map'
 
     // Filter states
     const [searchTerm, setSearchTerm] = useState('')
@@ -50,7 +52,17 @@ export default function Professionals() {
                 .order('created_at', { ascending: false })
 
             if (error) throw error
-            setProfessionals(data || [])
+
+            // Mock random coordinates for demo purposes if they are missing
+            // remove this in prod when real data is populated via geocoding
+            const professionalsWithCoords = (data || []).map(p => ({
+                ...p,
+                // If lat/lng missing, assign random around Bangalore (12.9716, 77.5946) +/- 0.05
+                latitude: p.latitude || (12.9716 + (Math.random() - 0.5) * 0.1),
+                longitude: p.longitude || (77.5946 + (Math.random() - 0.5) * 0.1)
+            }))
+
+            setProfessionals(professionalsWithCoords)
         } catch (error) {
             console.error('Error fetching professionals:', error)
             toast.error('Failed to load professionals')
@@ -142,7 +154,7 @@ export default function Professionals() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
                 {/* Floating Filter Bar */}
-                <div className="bg-white rounded-[2rem] shadow-floating p-4 mb-16 border border-slate-100 sticky top-4 z-30 mx-2">
+                <div className="bg-white rounded-[2rem] shadow-floating p-4 mb-8 border border-slate-100 mx-2 transition-all duration-300">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                         {/* Search */}
                         <div className="md:col-span-5 relative">
@@ -190,113 +202,133 @@ export default function Professionals() {
                     </div>
                 </div>
 
-                {/* Results Count */}
+                {/* View Toggle & Results Count */}
                 <div className="flex items-center justify-between mb-8 px-4">
-                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-4">
                         Top Professionals
+                        <div className="flex bg-slate-100 p-1 rounded-xl">
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-black' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                <List className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('map')}
+                                className={`p-2 rounded-lg transition-all ${viewMode === 'map' ? 'bg-white shadow-sm text-black' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                <Map className="h-5 w-5" />
+                            </button>
+                        </div>
                     </h2>
                     <span className="text-sm font-bold text-slate-900 bg-[#FACC15] px-4 py-2 rounded-full shadow-sm">
                         {filteredProfessionals.length} results
                     </span>
                 </div>
 
-                {/* Professionals Grid - Clean White Cards */}
-                {filteredProfessionals.length === 0 ? (
-                    <div className="text-center py-24 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
-                        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-                            <Search className="h-10 w-10 text-slate-300" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-slate-900 mb-2">No professionals found</h3>
-                        <p className="text-slate-500">Try adjusting your filters for better results.</p>
-                    </div>
+                {viewMode === 'map' ? (
+                    <ProfessionalsMap professionals={filteredProfessionals} />
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredProfessionals.map((prof) => (
-                            <Link
-                                key={prof.id}
-                                to={`/professionals/${prof.id}`}
-                                className="group relative bg-white rounded-[2.5rem] p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-floating border border-slate-100"
-                            >
-                                {/* Header: Avatar */}
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="relative">
-                                        {prof.profiles?.avatar_url ? (
-                                            <img
-                                                src={prof.profiles.avatar_url}
-                                                alt={prof.profiles.full_name}
-                                                className="h-24 w-24 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform duration-300"
-                                            />
-                                        ) : (
-                                            <div className="h-24 w-24 rounded-2xl bg-slate-100 flex items-center justify-center text-3xl font-bold text-slate-900 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                                {prof.profiles?.full_name?.[0] || 'U'}
-                                            </div>
-                                        )}
-                                        {prof.available && (
-                                            <div className="absolute -bottom-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full border-4 border-white">
-                                                OPEN
-                                            </div>
-                                        )}
-                                    </div>
-                                    <button
-                                        onClick={(e) => handleShare(e, prof)}
-                                        className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-black hover:text-white transition-all duration-300"
-                                    >
-                                        <Share2 className="h-5 w-5" />
-                                    </button>
-                                </div>
-
-                                {/* Content */}
-                                <div className="mb-6">
-                                    <h3 className="font-bold text-2xl text-slate-900 mb-1 leading-tight group-hover:text-black transition-colors">
-                                        {prof.profiles?.full_name || 'Professional'}
-                                    </h3>
-                                    <p className="text-slate-500 font-medium text-lg mb-4">
-                                        {prof.profession}
-                                    </p>
-
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        {prof.location && (
-                                            <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-slate-50 text-slate-600">
-                                                <MapPin className="h-3 w-3 mr-1" />
-                                                {prof.location}
-                                            </span>
-                                        )}
-                                        {prof.years_of_experience && (
-                                            <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-slate-50 text-slate-600">
-                                                <Star className="h-3 w-3 mr-1" />
-                                                {prof.years_of_experience}y Exp
-                                            </span>
-                                        )}
+                    /* Professionals Grid - Clean White Cards */
+                    filteredProfessionals.length === 0 ? (
+                        <div className="text-center py-24 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                <Search className="h-10 w-10 text-slate-300" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-2">No professionals found</h3>
+                            <p className="text-slate-500">Try adjusting your filters for better results.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {filteredProfessionals.map((prof) => (
+                                <Link
+                                    key={prof.id}
+                                    to={`/professionals/${prof.id}`}
+                                    className="group relative bg-white rounded-[2.5rem] p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-floating border border-slate-100"
+                                >
+                                    {/* Header: Avatar */}
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="relative">
+                                            {prof.profiles?.avatar_url ? (
+                                                <img
+                                                    src={prof.profiles.avatar_url}
+                                                    alt={prof.profiles.full_name}
+                                                    className="h-24 w-24 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform duration-300"
+                                                />
+                                            ) : (
+                                                <div className="h-24 w-24 rounded-2xl bg-slate-100 flex items-center justify-center text-3xl font-bold text-slate-900 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                                    {prof.profiles?.full_name?.[0] || 'U'}
+                                                </div>
+                                            )}
+                                            {prof.available && (
+                                                <div className="absolute -bottom-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full border-4 border-white">
+                                                    OPEN
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={(e) => handleShare(e, prof)}
+                                            className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-black hover:text-white transition-all duration-300"
+                                        >
+                                            <Share2 className="h-5 w-5" />
+                                        </button>
                                     </div>
 
-                                    {prof.bio && (
-                                        <p className="text-slate-500 text-sm line-clamp-2 leading-relaxed">
-                                            {prof.bio}
+                                    {/* Content */}
+                                    <div className="mb-6">
+                                        <h3 className="font-bold text-2xl text-slate-900 mb-1 leading-tight group-hover:text-black transition-colors">
+                                            {prof.profiles?.full_name || 'Professional'}
+                                        </h3>
+                                        <p className="text-slate-500 font-medium text-lg mb-4">
+                                            {prof.profession}
                                         </p>
-                                    )}
-                                </div>
 
-                                {/* Clean Divider */}
-                                <div className="h-px bg-slate-100 my-6" />
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {prof.location && (
+                                                <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-slate-50 text-slate-600">
+                                                    <MapPin className="h-3 w-3 mr-1" />
+                                                    {prof.location}
+                                                </span>
+                                            )}
+                                            {prof.years_of_experience && (
+                                                <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-slate-50 text-slate-600">
+                                                    <Star className="h-3 w-3 mr-1" />
+                                                    {prof.years_of_experience}y Exp
+                                                </span>
+                                            )}
+                                        </div>
 
-                                {/* Footer & Price */}
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Rate</p>
-                                        <p className="text-xl font-bold text-slate-900">
-                                            {prof.hourly_rate ? `₹${prof.hourly_rate}` : 'Varied'}
-                                            <span className="text-sm font-normal text-slate-400 ml-1">/hr</span>
-                                        </p>
+                                        {prof.bio && (
+                                            <p className="text-slate-500 text-sm line-clamp-2 leading-relaxed">
+                                                {prof.bio}
+                                            </p>
+                                        )}
                                     </div>
-                                    <div className="h-12 w-12 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-[#FACC15] group-hover:text-black transition-all duration-300 shadow-lg shadow-slate-200">
-                                        <ArrowRight className="h-5 w-5" />
+
+                                    {/* Clean Divider */}
+                                    <div className="h-px bg-slate-100 my-6" />
+
+                                    {/* Footer & Price */}
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Rate</p>
+                                            <p className="text-xl font-bold text-slate-900">
+                                                {prof.hourly_rate ? `₹${prof.hourly_rate}` : 'Varied'}
+                                                <span className="text-sm font-normal text-slate-400 ml-1">/hr</span>
+                                            </p>
+                                        </div>
+                                        <div className="h-12 w-12 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-[#FACC15] group-hover:text-black transition-all duration-300 shadow-lg shadow-slate-200">
+                                            <ArrowRight className="h-5 w-5" />
+                                        </div>
                                     </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )
                 )}
             </div>
         </div>
     )
 }
+
+

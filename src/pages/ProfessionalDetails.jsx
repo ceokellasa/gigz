@@ -4,24 +4,33 @@
  * Vibe: Clean, Minimalist, White, Yellow Accents.
  */
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import {
     MapPin, Briefcase, DollarSign, Globe, Linkedin, Phone,
     Award, Image as ImageIcon,
-    ChevronLeft, MessageSquare, Share2, Sparkles, ExternalLink, Star, CheckCircle
+    ChevronLeft, MessageSquare, Share2, Sparkles, ExternalLink, Star, CheckCircle, ArrowRight
 } from 'lucide-react'
 import { useToast } from '../components/Toast'
 
 export default function ProfessionalDetails() {
     const { id } = useParams()
+    const navigate = useNavigate()
     const [profile, setProfile] = useState(null)
+    const [services, setServices] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const toast = useToast()
 
+    const handleBookService = (service) => {
+        if (!profile?.user_id) return
+        const message = `Hi, I'm interested in your service: ${service.title} for ₹${service.price}.`
+        navigate(`/messages?userId=${profile.user_id}&message=${encodeURIComponent(message)}`)
+    }
+
     useEffect(() => {
         fetchProfile()
+        fetchServices()
     }, [id])
 
     const fetchProfile = async () => {
@@ -45,6 +54,52 @@ export default function ProfessionalDetails() {
             setError(err.message)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const fetchServices = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('professional_services')
+                .select('*')
+                .eq('professional_id', id)
+                .order('price', { ascending: true })
+
+            if (error && error.code !== 'PGRST116') {
+                console.error('Error fetching services:', error)
+                // Don't throw, just empty array
+            }
+
+            // Mock services for demo if none exist
+            if (!data || data.length === 0) {
+                setServices([
+                    {
+                        id: 'mock-1',
+                        title: 'Consultation Call',
+                        description: '30-minute video call to discuss your project requirements and feasibility.',
+                        price: 499,
+                        delivery_time_days: 1
+                    },
+                    {
+                        id: 'mock-2',
+                        title: 'Standard Service Package',
+                        description: 'Complete execution of the standard task with 1 revision included.',
+                        price: 2499,
+                        delivery_time_days: 3
+                    },
+                    {
+                        id: 'mock-3',
+                        title: 'Premium Project',
+                        description: 'End-to-end full service with source files, priority support, and unlimited revisions.',
+                        price: 9999,
+                        delivery_time_days: 7
+                    }
+                ])
+            } else {
+                setServices(data)
+            }
+        } catch (err) {
+            console.error('Error in fetchServices:', err)
         }
     }
 
@@ -195,6 +250,41 @@ export default function ProfessionalDetails() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     {/* Main Content - Left */}
                     <div className="lg:col-span-8 space-y-12">
+                        {/* Services Section (New) */}
+                        <section>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <Briefcase className="h-6 w-6 text-[#FACC15]" />
+                                Service Packages
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {services.map((service) => (
+                                    <div key={service.id} className="bg-white rounded-[2rem] border-2 border-slate-100 p-6 hover:shadow-floating transition-all group">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <h4 className="font-bold text-xl text-slate-900 leading-tight">{service.title}</h4>
+                                            <span className="bg-black text-white text-sm font-bold px-3 py-1 rounded-full">
+                                                ₹{service.price}
+                                            </span>
+                                        </div>
+                                        <p className="text-slate-500 font-medium text-sm mb-6 line-clamp-3">
+                                            {service.description}
+                                        </p>
+                                        <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+                                            <span className="text-xs font-bold text-slate-400 flex items-center">
+                                                <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+                                                {service.delivery_time_days} Day Delivery
+                                            </span>
+                                            <button
+                                                onClick={() => handleBookService(service)}
+                                                className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center"
+                                            >
+                                                Book Now <ArrowRight className="h-4 w-4 ml-1" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
                         {/* Bio */}
                         {profile.bio && (
                             <section>
