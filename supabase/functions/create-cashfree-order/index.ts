@@ -11,9 +11,9 @@ serve(async (req) => {
     }
 
     try {
-        const { plan_id, user_id, user_phone, user_email, user_name, price } = await req.json()
+        const { plan_id, user_id, user_phone, user_email, user_name, price, product_id, type } = await req.json()
 
-        if (!plan_id || !user_id || !price) {
+        if (!user_id || !price) {
             throw new Error('Missing required fields')
         }
 
@@ -26,7 +26,25 @@ serve(async (req) => {
             throw new Error('Cashfree credentials not configured')
         }
 
+        // Determine if this is a Product Purchase or Subscription
+        const isProduct = type === 'product' || !!product_id
+        if (!isProduct && !plan_id) throw new Error('Missing Plan ID or Product ID')
+
+        // Generate Order ID
         const orderId = `order_${user_id.split('-')[0]}_${Date.now()}`
+
+        // Construct Return URL based on type
+        // Note: Origin header comes from the request, usually frontend URL
+        let returnUrl = `${req.headers.get('origin')}/subscription/success?order_id={order_id}&plan_id=${plan_id}`
+        let note = `Subscription for ${plan_id}`
+        const tags: any = { type: 'subscription', plan_id: plan_id }
+
+        if (isProduct) {
+            returnUrl = `${req.headers.get('origin')}/marketplace/success?order_id={order_id}&product_id=${product_id}`
+            note = `Purchase Product ${product_id}`
+            tags.type = 'product'
+            tags.product_id = product_id
+        }
 
         const payload = {
             order_id: orderId,
@@ -39,9 +57,10 @@ serve(async (req) => {
                 customer_name: user_name || 'User'
             },
             order_meta: {
-                return_url: `${req.headers.get('origin')}/subscription/success?order_id={order_id}&plan_id=${plan_id}`
+                return_url: returnUrl
             },
-            order_note: `Subscription for ${plan_id}`
+            order_note: note,
+            order_tags: tags
         }
 
         const response = await fetch(URL, {

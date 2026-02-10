@@ -35,6 +35,10 @@ const CreateProfessionalProfile = lazy(() => import('./pages/CreateProfessionalP
 const ProfessionalDetails = lazy(() => import('./pages/ProfessionalDetails'))
 const About = lazy(() => import('./pages/About'))
 const Privacy = lazy(() => import('./pages/Privacy'))
+const Marketplace = lazy(() => import('./pages/Marketplace'))
+const MarketplaceProduct = lazy(() => import('./pages/MarketplaceProduct'))
+const MarketplaceSuccess = lazy(() => import('./pages/MarketplaceSuccess'))
+const CreateProduct = lazy(() => import('./pages/professional/CreateProduct'))
 
 function App() {
   return (
@@ -68,6 +72,10 @@ function App() {
                     <Route path="refunds" element={<Refunds />} />
                     <Route path="about" element={<About />} />
                     <Route path="privacy" element={<Privacy />} />
+                    <Route path="marketplace" element={<Marketplace />} />
+                    <Route path="marketplace/:id" element={<MarketplaceProduct />} />
+                    <Route path="marketplace/success" element={<MarketplaceSuccess />} />
+                    <Route path="marketplace/sell" element={<CreateProduct />} />
                     <Route path="admin" element={<AdminDashboard />} />
                     <Route path="email-verified" element={<EmailVerified />} />
                     <Route path="professionals" element={<Professionals />} />

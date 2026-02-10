@@ -21,6 +21,7 @@ export default function ProfessionalDetails() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const toast = useToast()
+    const [products, setProducts] = useState([])
 
     const handleBookService = (service) => {
         if (!profile?.user_id) return
@@ -31,17 +32,30 @@ export default function ProfessionalDetails() {
     useEffect(() => {
         fetchProfile()
         fetchServices()
+        fetchProducts()
     }, [id])
+
+    const fetchProducts = async () => {
+        const { data } = await supabase
+            .from('digital_products')
+            .select('*')
+            .eq('professional_id', id)
+        setProducts(data || [])
+    }
 
     const fetchProfile = async () => {
         try {
             const { data, error } = await supabase
                 .from('professional_profiles')
                 .select(`
-                    *,
-                    profiles:user_id (
+                    id, user_id, bio, skills, experience, portfolio_images, location, rating_average, rating_count,
+                    profession, years_of_experience, willing_to_travel, available, phone, website, linkedin,
+                    hourly_rate, contact_for_pricing, project_rate_min, project_rate_max, certifications, previous_works,
+                    user:user_id (
                         full_name,
-                        avatar_url
+                        avatar_url,
+                        email,
+                        phone_number
                     )
                 `)
                 .eq('id', id)
@@ -105,7 +119,7 @@ export default function ProfessionalDetails() {
 
     const handleShare = async () => {
         const shareData = {
-            title: `Check out ${profile?.profiles?.full_name} on Kellasa`,
+            title: `Check out ${profile?.user?.full_name} on Kellasa`,
             text: `I found this professional on Kellasa: ${profile?.profession}`,
             url: window.location.href
         }
@@ -173,15 +187,15 @@ export default function ProfessionalDetails() {
                     {/* Large Avatar */}
                     <div className="relative shrink-0">
                         <div className="h-48 w-48 md:h-64 md:w-64 rounded-[3rem] overflow-hidden bg-slate-50 shadow-soft">
-                            {profile.profiles?.avatar_url ? (
+                            {profile.user?.avatar_url ? (
                                 <img
-                                    src={profile.profiles.avatar_url}
-                                    alt={profile.profiles.full_name}
+                                    src={profile.user.avatar_url}
+                                    alt={profile.user.full_name}
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
                                 <div className="h-full w-full flex items-center justify-center text-6xl font-bold text-slate-200 bg-slate-50">
-                                    {profile.profiles?.full_name?.[0] || 'U'}
+                                    {profile.user?.full_name?.[0] || 'U'}
                                 </div>
                             )}
                         </div>
@@ -195,7 +209,7 @@ export default function ProfessionalDetails() {
                     {/* Info */}
                     <div className="flex-1 pt-4">
                         <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-4 tracking-tighter leading-none">
-                            {profile.profiles?.full_name}
+                            {profile.user?.full_name}
                         </h1>
                         <div className="flex flex-wrap items-center gap-4 mb-8">
                             <span className="text-2xl font-medium text-slate-500">
@@ -256,33 +270,54 @@ export default function ProfessionalDetails() {
                                 <Briefcase className="h-6 w-6 text-[#FACC15]" />
                                 Service Packages
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {services.map((service) => (
-                                    <div key={service.id} className="bg-white rounded-[2rem] border-2 border-slate-100 p-6 hover:shadow-floating transition-all group">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <h4 className="font-bold text-xl text-slate-900 leading-tight">{service.title}</h4>
-                                            <span className="bg-black text-white text-sm font-bold px-3 py-1 rounded-full">
-                                                ₹{service.price}
-                                            </span>
-                                        </div>
-                                        <p className="text-slate-500 font-medium text-sm mb-6 line-clamp-3">
-                                            {service.description}
-                                        </p>
-                                        <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                                            <span className="text-xs font-bold text-slate-400 flex items-center">
-                                                <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
-                                                {service.delivery_time_days} Day Delivery
-                                            </span>
+                            {services.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {services.map(service => (
+                                        <div key={service.id} className="border border-slate-100 rounded-xl p-6 hover:shadow-md transition-shadow">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <h3 className="font-bold text-lg text-slate-900">{service.title}</h3>
+                                                <span className="text-indigo-600 font-bold bg-indigo-50 px-3 py-1 rounded-full text-sm">
+                                                    ₹{service.price}
+                                                </span>
+                                            </div>
+                                            <p className="text-slate-600 text-sm mb-4 line-clamp-2">{service.description}</p>
                                             <button
                                                 onClick={() => handleBookService(service)}
-                                                className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center"
+                                                className="w-full btn-secondary text-sm py-2"
                                             >
-                                                Book Now <ArrowRight className="h-4 w-4 ml-1" />
+                                                Book Now
                                             </button>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-slate-500 italic">No services listed yet.</p>
+                            )}
+                        </section>
+
+                        {/* Digital Products Section */}
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <DollarSign className="h-6 w-6 text-indigo-600" />
+                                Digital Products
+                            </h2>
+                            {products.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    {products.map(product => (
+                                        <Link key={product.id} to={`/marketplace/${product.id}`} className="group block bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all">
+                                            <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
+                                                <img src={product.cover_image_url} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                            </div>
+                                            <div className="p-4">
+                                                <h3 className="font-bold text-slate-900 truncate mb-1 text-sm">{product.title}</h3>
+                                                <p className="text-indigo-600 font-bold">₹{product.price}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-slate-500 italic">No digital products listed.</p>
+                            )}
                         </section>
 
                         {/* Bio */}
@@ -436,7 +471,7 @@ export default function ProfessionalDetails() {
                         )}
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }

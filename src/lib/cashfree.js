@@ -45,13 +45,13 @@ export const createPaymentSession = async (plan, user, profile) => {
     }
 }
 
-export const doPayment = async (paymentSessionId) => {
+export const doPayment = async (paymentSessionId, redirectPath = '/subscription/success') => {
     if (!cashfree) await initializeCashfree()
 
     return cashfree.checkout({
         paymentSessionId,
         redirectTarget: '_self',
-        returnUrl: `${window.location.origin}/subscription/success?order_id={order_id}`
+        returnUrl: `${window.location.origin}${redirectPath}?order_id={order_id}`
     })
 }
 

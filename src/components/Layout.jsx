@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
 import { Disclosure } from '@headlessui/react'
@@ -12,6 +14,47 @@ export default function Layout() {
     const navigate = useNavigate()
     const location = useLocation()
 
+    // Track Online Presence for Admin Stats
+    useEffect(() => {
+        const channel = supabase.channel('global-presence')
+
+        channel.subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                // Use user ID or random anon ID
+                const trackId = user?.id || `anon-${Math.random().toString(36).substr(2, 9)}`
+                await channel.track({
+                    online_at: new Date().toISOString(),
+                    user_id: user?.id || null
+                })
+            }
+        })
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [user])
+
+    // Track Page Views for Analytics
+    useEffect(() => {
+        const logView = async () => {
+            // Simple device detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            const deviceType = isMobile ? 'mobile' : 'desktop'
+
+            await supabase.from('analytics_events').insert({
+                user_id: user?.id || null, // Track anonymously if not logged in
+                event_type: 'page_view',
+                path: location.pathname,
+                device_type: deviceType,
+                created_at: new Date().toISOString()
+            })
+        }
+
+        // Debounce slightly to avoid rapid navigation spam? Or just log all.
+        // For now, log all unique path changes.
+        logView()
+    }, [location.pathname, user?.id])
+
     const handleSignOut = async () => {
         await signOut()
         navigate('/login')
@@ -22,6 +65,7 @@ export default function Layout() {
         { name: 'Post a Gig', href: '/post-gig', current: location.pathname === '/post-gig' },
         { name: 'Find Work', href: '/gigs', current: location.pathname === '/gigs' },
         { name: 'Find Professionals', href: '/professionals', current: location.pathname === '/professionals' },
+        { name: 'Marketplace', href: '/marketplace', current: location.pathname.startsWith('/marketplace') },
     ]
 
     if (user) {

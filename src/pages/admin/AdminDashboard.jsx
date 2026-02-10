@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { Users, Briefcase, Trash2, ShieldAlert, Activity, Settings } from 'lucide-react'
+import { Users, Briefcase, Trash2, ShieldAlert, Activity, Settings, Eye, MessageSquare, BadgeCheck } from 'lucide-react'
 import AdminGigList from './AdminGigList'
 import AdminUserList from './AdminUserList'
 import AdminCMS from './AdminCMS'
@@ -10,37 +10,64 @@ import AdminKYCRequests from './AdminKYCRequests'
 import AdminNotifications from './AdminNotifications'
 import AdminProfessionals from './AdminProfessionals'
 import AdminSuggestions from './AdminSuggestions'
+import AdminAnalytics from './AdminAnalytics'
 
 const ADMIN_EMAIL = 'nsjdfmjr@gmail.com'
 
 export default function AdminDashboard() {
     const { user, loading: authLoading } = useAuth()
     const navigate = useNavigate()
-    const [stats, setStats] = useState({ users: 0, gigs: 0, reports: 0 })
+    const [stats, setStats] = useState({ users: 0, gigs: 0, liveViewers: 0, professionals: 0, messages: 0 })
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState('overview') // 'overview', 'users', 'gigs', 'cms', 'notifications'
 
     useEffect(() => {
+        let channel = null
+
         if (!authLoading) {
             if (!user || user.email !== ADMIN_EMAIL) {
                 navigate('/')
             } else {
                 fetchStats()
+
+                // Realtime Presence for Live Viewers
+                channel = supabase.channel('global-presence')
+                channel
+                    .on('presence', { event: 'sync' }, () => {
+                        const state = channel.presenceState()
+                        // Count unique presence IDs
+                        const count = Object.keys(state).length
+                        setStats(prev => ({ ...prev, liveViewers: count }))
+                    })
+                    .subscribe()
             }
+        }
+
+        return () => {
+            if (channel) supabase.removeChannel(channel)
         }
     }, [user, authLoading, navigate])
 
     const fetchStats = async () => {
         setLoading(true)
         try {
-            const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
-            const { count: gigCount } = await supabase.from('gigs').select('*', { count: 'exact', head: true })
+            const { data, error } = await supabase.rpc('get_admin_dashboard_stats')
 
-            setStats({
-                users: userCount || 0,
-                gigs: gigCount || 0,
-                reports: 0
-            })
+            if (error) {
+                console.error('RPC Error:', error)
+                // Fallback
+                const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
+                const { count: gigCount } = await supabase.from('gigs').select('*', { count: 'exact', head: true })
+                setStats(prev => ({ ...prev, users: userCount || 0, gigs: gigCount || 0 }))
+            } else if (data) {
+                setStats(prev => ({
+                    ...prev,
+                    users: data.total_users || 0,
+                    gigs: data.total_gigs || 0,
+                    professionals: data.total_professionals || 0,
+                    messages: data.total_messages || 0
+                }))
+            }
         } catch (error) {
             console.error('Error fetching admin stats:', error)
         } finally {
@@ -69,32 +96,65 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div className="glass-panel p-6 rounded-2xl flex items-center gap-4">
-                    <div className="p-4 bg-indigo-100 rounded-xl text-indigo-600">
-                        <Users className="h-6 w-6" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+                <div className="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-red-100 rounded-xl text-red-600">
+                            <Eye className="h-6 w-6" />
+                        </div>
+                        <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full animate-pulse">LIVE</span>
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-slate-500">Active Viewers</p>
+                        <p className="text-3xl font-bold text-slate-900">{stats.liveViewers || 0}</p>
+                    </div>
+                </div>
+
+                <div className="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600">
+                            <Users className="h-6 w-6" />
+                        </div>
                     </div>
                     <div>
                         <p className="text-sm font-medium text-slate-500">Total Users</p>
-                        <p className="text-2xl font-bold text-slate-900">{stats.users}</p>
+                        <p className="text-3xl font-bold text-slate-900">{stats.users}</p>
                     </div>
                 </div>
-                <div className="glass-panel p-6 rounded-2xl flex items-center gap-4">
-                    <div className="p-4 bg-green-100 rounded-xl text-green-600">
-                        <Briefcase className="h-6 w-6" />
+
+                <div className="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-green-100 rounded-xl text-green-600">
+                            <Briefcase className="h-6 w-6" />
+                        </div>
                     </div>
                     <div>
                         <p className="text-sm font-medium text-slate-500">Total Gigs</p>
-                        <p className="text-2xl font-bold text-slate-900">{stats.gigs}</p>
+                        <p className="text-3xl font-bold text-slate-900">{stats.gigs}</p>
                     </div>
                 </div>
-                <div className="glass-panel p-6 rounded-2xl flex items-center gap-4">
-                    <div className="p-4 bg-orange-100 rounded-xl text-orange-600">
-                        <Activity className="h-6 w-6" />
+
+                <div className="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-purple-100 rounded-xl text-purple-600">
+                            <BadgeCheck className="h-6 w-6" />
+                        </div>
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-slate-500">System Status</p>
-                        <p className="text-2xl font-bold text-slate-900">Healthy</p>
+                        <p className="text-sm font-medium text-slate-500">Professionals</p>
+                        <p className="text-3xl font-bold text-slate-900">{stats.professionals}</p>
+                    </div>
+                </div>
+
+                <div className="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-orange-100 rounded-xl text-orange-600">
+                            <MessageSquare className="h-6 w-6" />
+                        </div>
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-slate-500">Messages</p>
+                        <p className="text-3xl font-bold text-slate-900">{stats.messages}</p>
                     </div>
                 </div>
             </div>
@@ -110,6 +170,15 @@ export default function AdminDashboard() {
                             }`}
                     >
                         Overview
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`pb-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'analytics'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            }`}
+                    >
+                        Analytics
                     </button>
                     <button
                         onClick={() => setActiveTab('users')}
@@ -189,6 +258,8 @@ export default function AdminDashboard() {
                         </p>
                     </div>
                 )}
+
+                {activeTab === 'analytics' && <AdminAnalytics />}
 
                 {activeTab === 'users' && <AdminUserList />}
 
