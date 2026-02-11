@@ -45,24 +45,35 @@ export default function ProfessionalDetails() {
 
     const fetchProfile = async () => {
         try {
-            const { data, error } = await supabase
+            console.log('Fetching professional profile for ID:', id)
+
+            // First, get the professional profile
+            const { data: profData, error: profError } = await supabase
                 .from('professional_profiles')
-                .select(`
-                    id, user_id, bio, skills, experience, portfolio_images, location, rating_average, rating_count,
-                    profession, years_of_experience, willing_to_travel, available, phone, website, linkedin,
-                    hourly_rate, contact_for_pricing, project_rate_min, project_rate_max, certifications, previous_works,
-                    user:user_id (
-                        full_name,
-                        avatar_url,
-                        email,
-                        phone_number
-                    )
-                `)
+                .select('*')
+                .eq('user_id', id)
+                .single()
+
+            if (profError) throw profError
+
+            // Then, get the user profile data
+            const { data: userData, error: userError } = await supabase
+                .from('profiles')
+                .select('full_name, avatar_url, email, phone_number')
                 .eq('id', id)
                 .single()
 
-            if (error) throw error
-            setProfile(data)
+            if (userError) console.warn('User data fetch failed:', userError)
+
+            // Combine the data
+            const combinedData = {
+                ...profData,
+                profiles: userData
+            }
+
+            console.log('Profile query result:', { data: combinedData })
+
+            setProfile(combinedData)
         } catch (err) {
             console.error('Error fetching professional:', err)
             setError(err.message)
@@ -119,7 +130,7 @@ export default function ProfessionalDetails() {
 
     const handleShare = async () => {
         const shareData = {
-            title: `Check out ${profile?.user?.full_name} on Kellasa`,
+            title: `Check out ${profile?.profiles?.full_name} on Kellasa`,
             text: `I found this professional on Kellasa: ${profile?.profession}`,
             url: window.location.href
         }
@@ -187,15 +198,15 @@ export default function ProfessionalDetails() {
                     {/* Large Avatar */}
                     <div className="relative shrink-0">
                         <div className="h-48 w-48 md:h-64 md:w-64 rounded-[3rem] overflow-hidden bg-slate-50 shadow-soft">
-                            {profile.user?.avatar_url ? (
+                            {profile.profiles?.avatar_url ? (
                                 <img
-                                    src={profile.user.avatar_url}
-                                    alt={profile.user.full_name}
+                                    src={profile.profiles.avatar_url}
+                                    alt={profile.profiles.full_name}
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
                                 <div className="h-full w-full flex items-center justify-center text-6xl font-bold text-slate-200 bg-slate-50">
-                                    {profile.user?.full_name?.[0] || 'U'}
+                                    {profile.profiles?.full_name?.[0] || 'U'}
                                 </div>
                             )}
                         </div>
@@ -209,7 +220,7 @@ export default function ProfessionalDetails() {
                     {/* Info */}
                     <div className="flex-1 pt-4">
                         <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-4 tracking-tighter leading-none">
-                            {profile.user?.full_name}
+                            {profile.profiles?.full_name}
                         </h1>
                         <div className="flex flex-wrap items-center gap-4 mb-8">
                             <span className="text-2xl font-medium text-slate-500">

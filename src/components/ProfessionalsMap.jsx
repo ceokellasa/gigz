@@ -153,7 +153,7 @@ export default function ProfessionalsMap({ professionals }) {
                             </div>
 
                             <Link
-                                to={`/professionals/${selectedProf.id}`}
+                                to={`/professionals/${selectedProf.user_id}`}
                                 className="block w-full text-center bg-black text-white text-xs font-bold py-2 rounded-lg hover:bg-slate-800 transition-colors"
                             >
                                 View Profile

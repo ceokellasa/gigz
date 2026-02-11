@@ -81,7 +81,7 @@ export default function Professionals() {
         const shareData = {
             title: `Check out ${prof.profiles?.full_name} on Kellasa`,
             text: `I found this professional on Kellasa: ${prof.profession}`,
-            url: `${window.location.origin}/professionals/${prof.id}`
+            url: `${window.location.origin}/professionals/${prof.user_id}`
         }
 
         try {
@@ -243,7 +243,7 @@ export default function Professionals() {
                             {filteredProfessionals.map((prof) => (
                                 <Link
                                     key={prof.id}
-                                    to={`/professionals/${prof.id}`}
+                                    to={`/professionals/${prof.user_id}`}
                                     className="group relative bg-white rounded-[2.5rem] p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-floating border border-slate-100"
                                 >
                                     {/* Header: Avatar */}

@@ -134,7 +134,7 @@ export default function AdminProfessionals() {
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex justify-end gap-3">
                                                 <Link
-                                                    to={`/professionals/${prof.id}`}
+                                                    to={`/professionals/${prof.user_id}`}
                                                     target="_blank"
                                                     className="text-indigo-600 hover:text-indigo-900"
                                                     title="View Public Profile"
