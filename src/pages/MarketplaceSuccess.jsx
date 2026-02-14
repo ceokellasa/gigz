@@ -8,32 +8,53 @@ import { useAuth } from '../context/AuthContext'
 export default function MarketplaceSuccess() {
     const [searchParams] = useSearchParams()
     const { user } = useAuth()
-    const [status, setStatus] = useState('verifying') // verifying, success, failed
+    const [status, setStatus] = useState('loading') // loading, verifying, success, failed
     const [product, setProduct] = useState(null)
     const [error, setError] = useState(null)
+    const [authChecked, setAuthChecked] = useState(false)
     const orderId = searchParams.get('order_id')
     const productId = searchParams.get('product_id')
 
+    // First, wait for auth to be ready
     useEffect(() => {
+        const checkAuth = async () => {
+            console.log('Checking authentication...')
+            const { data: { session } } = await supabase.auth.getSession()
+            console.log('Session:', session?.user?.id)
+            setAuthChecked(true)
+        }
+        checkAuth()
+    }, [])
+
+    useEffect(() => {
+        if (!authChecked) {
+            console.log('Waiting for auth check...')
+            return
+        }
+
         console.log('MarketplaceSuccess - Debug Info:', {
             orderId,
             productId,
             user: user?.id,
-            hasUser: !!user
+            hasUser: !!user,
+            authChecked
         })
 
-        // Wait for auth to load
-        if (user === undefined) {
-            console.log('Waiting for auth to load...')
+        if (!orderId || !productId) {
+            setStatus('failed')
+            setError('Invalid Order or Product ID')
+            console.error('Missing order or product ID:', { orderId, productId })
             return
         }
 
-        if (!orderId || !productId || !user) {
+        if (!user) {
             setStatus('failed')
-            setError('Invalid Order, Product ID, or User not logged in')
-            console.error('Missing required data:', { orderId, productId, hasUser: !!user })
+            setError('Please log in to view your purchase')
+            console.error('User not logged in')
             return
         }
+
+        setStatus('verifying')
 
         const processOrder = async () => {
             try {
@@ -91,7 +112,7 @@ export default function MarketplaceSuccess() {
         }
 
         processOrder()
-    }, [orderId, productId, user])
+    }, [orderId, productId, user, authChecked])
 
     const handleDownload = async () => {
         if (!product) return
@@ -119,10 +140,12 @@ export default function MarketplaceSuccess() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
             <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center border border-slate-100">
-                {status === 'verifying' && (
+                {(status === 'loading' || status === 'verifying') && (
                     <div className="py-12">
                         <Loader2 className="h-12 w-12 animate-spin text-indigo-600 mx-auto mb-4" />
-                        <h2 className="text-xl font-bold text-slate-900 mb-2">Verifying Payment</h2>
+                        <h2 className="text-xl font-bold text-slate-900 mb-2">
+                            {status === 'loading' ? 'Loading...' : 'Verifying Payment'}
+                        </h2>
                         <p className="text-slate-500">Please wait while we confirm your purchase...</p>
                     </div>
                 )}
