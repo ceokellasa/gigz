@@ -15,6 +15,15 @@ export default function MarketplaceSuccess() {
     const orderId = searchParams.get('order_id')
     const productId = searchParams.get('product_id')
 
+    // Debug: Log URL and all parameters
+    console.log('=== MarketplaceSuccess Debug ===')
+    console.log('Full URL:', window.location.href)
+    console.log('Search params:', window.location.search)
+    console.log('All params:', Array.from(searchParams.entries()))
+    console.log('order_id:', orderId)
+    console.log('product_id:', productId)
+    console.log('================================')
+
     // First, wait for auth to be ready
     useEffect(() => {
         const checkAuth = async () => {
