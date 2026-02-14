@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
 import { Disclosure } from '@headlessui/react'
-import { Briefcase, PlusCircle, Search, MessageSquare, Sparkles } from 'lucide-react'
+import { Briefcase, PlusCircle, Search, MessageSquare, Sparkles, ShoppingBag } from 'lucide-react'
 import clsx from 'clsx'
 import BroadcastListener from './BroadcastListener'
 
@@ -211,8 +211,8 @@ export default function Layout() {
                         )}
                     </Link>
 
-                    <Link to="/professionals" className={clsx("flex flex-col items-center gap-1 transition-colors relative", location.pathname === '/professionals' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <Search className="h-6 w-6" />
+                    <Link to="/marketplace" className={clsx("flex flex-col items-center gap-1 transition-colors relative", location.pathname.startsWith('/marketplace') ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
+                        <ShoppingBag className="h-6 w-6" />
                     </Link>
                 </div>
             </div>
