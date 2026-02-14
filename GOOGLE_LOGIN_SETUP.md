@@ -18,6 +18,10 @@
    ```
    https://rhqzywqsfjzjzbfqlyqf.supabase.co/auth/v1/callback
    ```
+   **For production, also add:**
+   ```
+   https://kellasa.online/auth/callback
+   ```
 8. Click **Create**
 9. Copy the **Client ID** and **Client Secret**
 
@@ -33,6 +37,17 @@
 4. Toggle **Enable Sign in with Google**
 5. Paste your **Client ID** and **Client Secret** from Google Cloud Console
 6. Click **Save**
+
+### 2. Configure Site URL (CRITICAL!)
+
+1. In Supabase Dashboard, go to **Authentication** → **URL Configuration**
+2. Set **Site URL** to: `https://kellasa.online`
+3. Add **Redirect URLs**:
+   - `https://kellasa.online/**`
+   - `http://localhost:5173/**` (for local development)
+4. Click **Save**
+
+**This is critical!** If the Site URL is not set correctly, OAuth will redirect to `/update-password` instead of your home page.
 
 ---
 
