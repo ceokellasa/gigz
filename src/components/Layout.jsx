@@ -185,17 +185,13 @@ export default function Layout() {
 
             {/* Mobile Bottom Navigation - Floating Capsule */}
             <div className="md:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center pb-safe pointer-events-none">
-                <div className="bg-black/90 backdrop-blur-xl border border-white/10 shadow-float-lg rounded-full px-4 py-4 flex justify-between items-center w-[95%] max-w-[420px] pointer-events-auto">
+                <div className="bg-black/90 backdrop-blur-xl border border-white/10 shadow-float-lg rounded-full px-6 py-4 flex justify-between items-center w-[90%] max-w-[380px] pointer-events-auto">
                     <Link to="/" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname === '/' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <Sparkles className="h-5 w-5" />
+                        <Sparkles className="h-6 w-6" />
                     </Link>
 
                     <Link to="/gigs" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname === '/gigs' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <Briefcase className="h-5 w-5" />
-                    </Link>
-
-                    <Link to="/professionals" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname === '/professionals' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <Search className="h-5 w-5" />
+                        <Briefcase className="h-6 w-6" />
                     </Link>
 
                     <Link to="/post-gig" className="relative -top-8">
@@ -205,22 +201,16 @@ export default function Layout() {
                     </Link>
 
                     <Link to="/marketplace" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname.startsWith('/marketplace') ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <ShoppingBag className="h-5 w-5" />
+                        <ShoppingBag className="h-6 w-6" />
                     </Link>
 
                     <Link to="/messages" className={clsx("flex flex-col items-center gap-1 transition-colors relative", location.pathname === '/messages' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <MessageSquare className="h-5 w-5" />
+                        <MessageSquare className="h-6 w-6" />
                         {unreadCount > 0 && (
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center border-2 border-black">
                                 {unreadCount > 9 ? '9+' : unreadCount}
                             </span>
                         )}
-                    </Link>
-
-                    <Link to="/profile" className={clsx("flex flex-col items-center gap-1 transition-colors", location.pathname === '/profile' ? "text-[#FACC15]" : "text-white/50 hover:text-white")}>
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
                     </Link>
                 </div>
             </div>
